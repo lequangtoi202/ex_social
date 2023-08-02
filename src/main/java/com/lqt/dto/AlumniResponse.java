@@ -19,5 +19,6 @@ public class AlumniResponse {
     private String avatarLink;
     private String studentId;
     private Boolean isConfirmed;
+    private String bgImage;
     private Long userId;
 }

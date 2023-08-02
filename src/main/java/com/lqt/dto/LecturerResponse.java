@@ -19,6 +19,7 @@ public class LecturerResponse {
     private String fullName;
     private String phone;
     private String avatarLink;
+    private String bgImage;
     private Boolean isLocked;
     private Long userId;
     private Timestamp createdOn;

@@ -34,10 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             JwtResponse jwtResponse = jwtTokenProvider.refreshToken(refreshToken);
 
-            //sử dụng cookie hoặc localstorage để lưu
-//            response.addHeader("Authorization", jwtResponse.getAccessToken());
-//            response.addHeader("Refresh-token", jwtResponse.getRefreshToken());
-
         }else{
             // validate token
             if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)){

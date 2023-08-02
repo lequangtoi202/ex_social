@@ -36,11 +36,15 @@ public class Survey implements Serializable {
 
     @Basic
     @Column(name = "created_on")
-    private Timestamp created_on;
+    private Timestamp createdOn;
 
     @Basic
     @Column(name = "users_id", nullable = false)
     private Long userId;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "posts_id", referencedColumnName = "id")
+    private Post post;
 
     @OneToMany(mappedBy = "surveyId", cascade = CascadeType.ALL)
     private List<Question> questions;

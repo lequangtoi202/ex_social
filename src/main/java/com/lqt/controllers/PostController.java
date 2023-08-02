@@ -33,11 +33,13 @@ public class PostController {
     @Autowired
     private InteractionService interactionService;
 
+    //ok
     @GetMapping(Routing.POST)
     public ResponseEntity<List<PostDto>> getAllPosts() {
         return ResponseEntity.ok(postService.findAllPosts());
     }
 
+    //ok
     @PostMapping(Routing.POST)
     public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -51,6 +53,7 @@ public class PostController {
         }
     }
 
+    //ok
     @PutMapping(Routing.POST_BY_ID)
     public ResponseEntity<?> updatePost(@RequestBody PostDto postDto, @PathVariable("id") Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -81,17 +84,20 @@ public class PostController {
         }
     }
 
+    //ok
     @GetMapping(Routing.POST_BY_ID)
     public ResponseEntity<PostDto> getPostById(@PathVariable("id") Long postId) {
         return ResponseEntity.ok(postService.findPostById(postId));
     }
 
+    //ok
     @GetMapping(Routing.POST_BY_USER_ID)
-    public ResponseEntity<List<PostDto>> getAllPostsByUserId(@PathVariable("userId") Long userId) {
-        return ResponseEntity.ok(postService.findPostsByUserId(userId));
+    public ResponseEntity<List<PostDto>> getAllPostsByUserId(@PathVariable("userId") Long userId, @RequestParam(value = "order",defaultValue = "desc") String orderDir) {
+        return ResponseEntity.ok(postService.findPostsByUserId(userId, orderDir));
     }
 
-    @GetMapping(Routing.LOCK_POST)
+    //ok
+    @PostMapping(Routing.LOCK_POST)
     public ResponseEntity<?> lockPost(@PathVariable("id") Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -104,7 +110,8 @@ public class PostController {
         }
     }
 
-    @GetMapping(Routing.SHARE_POST)
+    //ok
+    @PostMapping(Routing.SHARE_POST)
     public ResponseEntity<?> sharePost(@PathVariable("id") Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -117,6 +124,7 @@ public class PostController {
         }
     }
 
+    //ok
     @PostMapping(Routing.INTERACT)
     public ResponseEntity<?> interactWithPost(@PathVariable("postId") Long postId, HttpServletRequest req) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

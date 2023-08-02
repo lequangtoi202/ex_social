@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache
+Software Foundation//DTD Tiles Configuration 3.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+    <definition name="baseLayout"
+                template="/WEB-INF/layout/base.jsp">
+        <put-attribute name="title" value=""/>
+        <put-attribute name="header"
+                       value="/WEB-INF/layout/header.jsp"/>
+        <put-attribute name="content" value=""/>
+        <put-attribute name="footer"
+                       value="/WEB-INF/layout/footer.jsp"/>
+    </definition>
+    <definition name="index" extends="baseLayout">
+        <put-attribute name="title" value="Trang chủ"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/index.jsp"/>
+    </definition>
+    <!--    User-->
+    <definition name="user" extends="baseLayout">
+        <put-attribute name="title" value="User Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/user.jsp"/>
+    </definition>
+    <definition name="user-detail" extends="baseLayout">
+        <put-attribute name="title" value="User Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/user-detail.jsp"/>
+    </definition>
+    <!--    Group -->
+    <definition name="group" extends="baseLayout">
+        <put-attribute name="title" value="Group Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/group.jsp"/>
+    </definition>
+    <definition name="add-group" extends="baseLayout">
+        <put-attribute name="title" value="Group Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/add-group.jsp"/>
+    </definition>
+    <definition name="edit-group" extends="baseLayout">
+        <put-attribute name="title" value="Group Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/edit-group.jsp"/>
+    </definition>
+    <definition name="group-user" extends="baseLayout">
+        <put-attribute name="title" value="Group Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/group-user.jsp"/>
+    </definition>
+
+    <!--    có thể bỏ bên dưới-->
+    <definition name="add-to-group" extends="baseLayout">
+        <put-attribute name="title" value="Group Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/add-to-group.jsp"/>
+    </definition>
+    <!--    Survey-->
+    <definition name="survey" extends="baseLayout">
+        <put-attribute name="title" value="Survey Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/survey.jsp"/>
+    </definition>
+    <definition name="edit-survey" extends="baseLayout">
+        <put-attribute name="title" value="Survey Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/edit-survey.jsp"/>
+    </definition>
+    <definition name="add-survey" extends="baseLayout">
+        <put-attribute name="title" value="Survey Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/add-survey.jsp"/>
+    </definition>
+    <!--    Post-->
+    <definition name="post" extends="baseLayout">
+        <put-attribute name="title" value="Post Management"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/post.jsp"/>
+    </definition>
+    <!--    Send notification-->
+    <definition name="send-notification" extends="baseLayout">
+        <put-attribute name="title" value="Notification"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/send-notification.jsp"/>
+    </definition>
+    <!--    Login-->
+    <definition name="login" template="/WEB-INF/pages/login.jsp">
+
+    </definition>
+</tiles-definitions>

@@ -8,6 +8,7 @@ import com.lqt.util.Routing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,27 +24,31 @@ public class SurveyController {
     @Autowired
     private UserService userService;
 
-    //nhớ chỉ cho phép admin mới coi đc survey -> thêm PreAuthorize
+    //ok
+    @PreAuthorize("hasRole('SYS_ADMIN')")
     @GetMapping(Routing.SURVEY)
-    public ResponseEntity<List<SurveyDto>> getAllSurveys(){
+    public ResponseEntity<List<SurveyDto>> getAllSurveys() {
         return ResponseEntity.ok(surveyService.getAllSurveys());
     }
 
-    @PostMapping(Routing.SURVEY)
-    public ResponseEntity<?> createSurvey(@RequestBody SurveyDto surveyDto){
+    //ok
+    @PreAuthorize("hasRole('SYS_ADMIN')")
+    @PostMapping(Routing.SURVEY_OF_POST)
+    public ResponseEntity<?> createSurvey(@PathVariable("postId") Long postId, @RequestBody SurveyDto surveyDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             User currentUser = userService.getMyAccount(userDetails.getUsername());
-            SurveyDto surveys = surveyService.create(surveyDto, currentUser.getId());
+            SurveyDto surveys = surveyService.create(surveyDto, currentUser.getId(), postId);
             return new ResponseEntity<>(surveys == null ? new ResponseEntity<>("You do not have permission to access surveys", HttpStatus.UNAUTHORIZED) : surveys, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
+    @PreAuthorize("hasRole('SYS_ADMIN')")
     @PutMapping(Routing.SURVEY_BY_ID)
-    public ResponseEntity<?> updateSurvey(@RequestBody SurveyDto surveyDto, @PathVariable("surveyId")Long surveyId){
+    public ResponseEntity<?> updateSurvey(@RequestBody SurveyDto surveyDto, @PathVariable("surveyId") Long surveyId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -56,15 +61,15 @@ public class SurveyController {
     }
 
     @DeleteMapping(Routing.SURVEY_BY_ID)
-    public ResponseEntity<?> deleteSurvey(@PathVariable("surveyId")Long surveyId){
+    public ResponseEntity<?> deleteSurvey(@PathVariable("surveyId") Long surveyId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             User currentUser = userService.getMyAccount(userDetails.getUsername());
             Boolean rs = surveyService.delete(surveyId, currentUser.getId());
-            if (rs){
+            if (rs) {
                 return new ResponseEntity<>("Delete successfully!", HttpStatus.NO_CONTENT);
-            }else{
+            } else {
                 return ResponseEntity.badRequest().body("You don not have permission to delete this survey");
             }
         } else {
@@ -72,13 +77,15 @@ public class SurveyController {
         }
     }
 
+    //ok
     @GetMapping(Routing.SURVEY_BY_ID)
-    public ResponseEntity<SurveyDto> getSurveyById(@PathVariable("surveyId")Long surveyId){
+    public ResponseEntity<SurveyDto> getSurveyById(@PathVariable("surveyId") Long surveyId) {
         return ResponseEntity.ok(surveyService.getSurveyById(surveyId));
     }
 
+    //ok
     @GetMapping(Routing.SURVEY_BY_USER_ID)
-    public ResponseEntity<?> getSurveysByAdminId(){
+    public ResponseEntity<?> getSurveysByAdminId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();

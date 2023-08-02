@@ -17,6 +17,7 @@ public class SurveyDto {
     private String title;
     private String description;
     private String type;
-    private Timestamp created_on;
+    private Timestamp createdOn;
+    private Long postId;
     private Long userId;
 }

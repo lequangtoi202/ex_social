@@ -25,6 +25,7 @@ public class QuestionController {
     @Autowired
     private UserService userService;
 
+    //ok
     @GetMapping(Routing.QUESTION_BY_SURVEY)
     public ResponseEntity<?> getAllQuestionsBySurveyId(@PathVariable("surveyId") Long surveyId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -38,6 +39,8 @@ public class QuestionController {
         }
     }
 
+
+    //ok
     @PostMapping(Routing.QUESTION_BY_SURVEY)
     public ResponseEntity<?> createQuestion(@RequestBody OptionQuestionRequest optionQuestionRequest, @PathVariable("surveyId") Long surveyId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -53,6 +56,7 @@ public class QuestionController {
         }
     }
 
+    //ok
     @PutMapping(Routing.QUESTION_BY_ID)
     public ResponseEntity<?> updateQuestion(@RequestBody Question question, @PathVariable("id") Long questionId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -60,7 +64,7 @@ public class QuestionController {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             User currentUser = userService.getMyAccount(userDetails.getUsername());
             Question questionSaved = questionService.updateQuestionForSurvey(question, questionId, currentUser.getId());
-            return new ResponseEntity<>(questionSaved == null ? new ResponseEntity<>("You do not have permission to access question", HttpStatus.UNAUTHORIZED) : questionSaved, HttpStatus.CREATED);
+            return new ResponseEntity<>(questionSaved == null ? new ResponseEntity<>("You do not have permission to access question", HttpStatus.UNAUTHORIZED) : questionSaved, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -83,6 +87,7 @@ public class QuestionController {
         }
     }
 
+    //ok
     @GetMapping(Routing.QUESTION_BY_ID)
     public ResponseEntity<?> getQuestionByQuestionId(@PathVariable("id") Long questionId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

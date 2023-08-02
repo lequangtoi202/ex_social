@@ -28,7 +28,7 @@ public class Question implements Serializable {
     @Column(name = "surveys_id", nullable = false)
     private Long surveyId;
 
-    @OneToMany(mappedBy = "questionId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "questionId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Option> options;
 
 }

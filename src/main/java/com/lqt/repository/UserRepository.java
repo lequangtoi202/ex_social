@@ -15,24 +15,59 @@ import java.util.List;
 
 public interface UserRepository {
     AlumniResponse registerAlumni(Alumni alumni, User u);
+
     LecturerResponse registerLecturer(Lecturer lecturer, User u);
+
     User registerUser(User u);
+
     User findByEmail(String email);
+
+    List<User> findByFullName(String name);
+
     User updateUser(User user);
+
     Alumni findAlumniByUserId(Long userId);
+
     Lecturer findLecturerByUserId(Long userId);
+
     User findById(Long id);
+
     User findByUsername(String username);
+
     Boolean existsByUsername(String username);
+
     Boolean existsByEmail(String email);
+
     UserDto findByResetPasswordToken(String token);
+
     Boolean assignRoleToUser(Role role, User u);
+
     LecturerResponse resetWaitingChangePassword(User u);
-    User changePassword(User u);
+
+    UserDto changePassword(User u);
+
     LecturerResponse updateProfileLecturer(User u, Lecturer l);
+
     AlumniResponse updateProfileAlumni(User u, Alumni alumni);
+
+    List<AlumniResponse> getAllAlumniIsNotConfirmed();
+
+    List<AlumniResponse> getAllAlumni();
+
+    List<LecturerResponse> getAllLecturers();
+
+    List<User> getAllUsers();
+
     LecturerResponse updatePasswordLecturer(User u);
+
     Boolean lockLecturerWithoutChangeDefaultPassword();
+
+    Boolean deleteUser(User user);
+
     List<Role> getAllRoleOfUser(User u);
+
+    Boolean confirmAlumni(Alumni alumni);
+
+    Boolean checkAlumniIsConfirmed(Alumni alumni);
 
 }

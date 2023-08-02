@@ -1,6 +1,9 @@
 package com.lqt.controllers;
 
 import com.lqt.dto.*;
+import com.lqt.pojo.Alumni;
+import com.lqt.pojo.Post;
+import com.lqt.pojo.User;
 import com.lqt.request.AlumniRequest;
 import com.lqt.request.LecturerRequest;
 import com.lqt.service.AuthService;
@@ -14,13 +17,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 public class AuthController {
@@ -32,17 +35,43 @@ public class AuthController {
     private UserService userDetailServiceImpl;
 
     @PostMapping(Routing.LOGIN)
-    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) throws Exception {
-
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpServletResponse response) throws Exception {
         authenticate(loginDto.getUsername(), loginDto.getPassword());
 
         final UserDetails userDetails = userDetailServiceImpl
                 .loadUserByUsername(loginDto.getUsername());
-        JwtResponse jwtResponse = authService.login(userDetails);
-        if (jwtResponse != null) {
-            return ResponseEntity.ok().body(jwtResponse);
-        } else {
-            return ResponseEntity.badRequest().body("Username or password is invalid!");
+        User user = userDetailServiceImpl.findByUsername(userDetails.getUsername());
+        Alumni alumni = userDetailServiceImpl.findAlumniByUserId(user.getId());
+        if (alumni != null){
+            Boolean isConfirmed = userDetailServiceImpl.checkAlumniIsConfirmed(alumni);
+            if (isConfirmed){
+                JwtResponse jwtResponse = authService.login(userDetails);
+                if (jwtResponse != null) {
+                    Cookie cookie = new Cookie("JWT_TOKEN", jwtResponse.getAccessToken());
+                    cookie.setPath("/");
+                    cookie.setMaxAge(3600);
+
+                    response.addCookie(cookie);
+                    return ResponseEntity.ok().body(jwtResponse);
+                } else {
+                    return ResponseEntity.badRequest().body("Username or password is invalid!");
+                }
+            }
+            else{
+                return new ResponseEntity<>("Your account is not confirmed by admin. Please waiting!..", HttpStatus.BAD_REQUEST);
+            }
+        }else{
+            JwtResponse jwtResponse = authService.login(userDetails);
+            if (jwtResponse != null) {
+                Cookie cookie = new Cookie("JWT_TOKEN", jwtResponse.getAccessToken());
+                cookie.setPath("/");
+                cookie.setMaxAge(3600);
+
+                response.addCookie(cookie);
+                return ResponseEntity.ok().body(jwtResponse);
+            } else {
+                return ResponseEntity.badRequest().body("Username or password is invalid!");
+            }
         }
     }
 
@@ -51,7 +80,6 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    //hàm này nên chuyển qua controller của admin -> chỉnh sửa lại
     @PostMapping(Routing.ADMIN_REGISTER)
     public void adminRegister(@RequestBody UserDto userDto, @RequestPart("avatar")MultipartFile avatar) throws Exception {
         authService.userRegister(userDto, avatar);
@@ -69,5 +97,22 @@ public class AuthController {
         return new ResponseEntity<>(lecturerResponse, HttpStatus.CREATED);
     }
 
+    @PostMapping(Routing.IS_EXIST_EMAIL)
+    public ResponseEntity<?> isExistEmail(@RequestParam String email){
+        if (userDetailServiceImpl.existsByEmail(email)){
+            return ResponseEntity.badRequest().body("Email is already exist");
+        }else {
+            return ResponseEntity.ok().build();
+        }
+    }
+
+    @PostMapping(Routing.IS_EXIST_USERNAME)
+    public ResponseEntity<?> isExistUsername(@RequestParam String username){
+        if (userDetailServiceImpl.existsByUsername(username)){
+            return ResponseEntity.badRequest().body("Username is already exist");
+        }else {
+            return ResponseEntity.ok().build();
+        }
+    }
 
 }

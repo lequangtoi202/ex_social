@@ -3,6 +3,7 @@ package com.lqt.controllers;
 import com.lqt.pojo.Group;
 import com.lqt.pojo.User;
 import com.lqt.request.MailRequest;
+import com.lqt.request.RequestMailToAlumni;
 import com.lqt.service.GroupService;
 import com.lqt.service.MailService;
 import com.lqt.service.UserService;
@@ -11,6 +12,8 @@ import com.lqt.util.Routing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,25 +35,29 @@ public class GroupController {
     private UserService userService;
     @Autowired
     private MailService mailService;
-
+    @Autowired
+    private JavaMailSender mailSender;
+    //ok
     @GetMapping(Routing.GROUP)
-    public ResponseEntity<List<Group>> getAllGroups() {
-        return ResponseEntity.ok(groupService.getAllGroups());
+    public ResponseEntity<List<Group>> getAllGroups(@RequestParam(value = "name", required = false) String name) {
+        return ResponseEntity.ok(groupService.getAllGroups(name));
     }
 
+    //ok
     @PostMapping(Routing.GROUP)
-    public ResponseEntity<Group> createGroup(@RequestBody Group group) {
+    public ResponseEntity<?> createGroup(@RequestBody Group group) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             User currentUser = userService.getMyAccount(userDetails.getUsername());
             Group groupSaved = groupService.create(group, currentUser.getId());
-            return new ResponseEntity<>(groupSaved, HttpStatus.CREATED);
+            return new ResponseEntity<>(groupSaved == null ? new ResponseEntity<>("You do not have permission to update this group", HttpStatus.UNAUTHORIZED) : groupSaved, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping(Routing.GROUP_BY_ID)
+    //ok
+    @PutMapping(Routing.GROUP_BY_ID)
     public ResponseEntity<?> updateGroup(@RequestBody Group group, @PathVariable("id") Long groupId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -77,16 +84,19 @@ public class GroupController {
 
     }
 
+    //ok
     @GetMapping(Routing.GROUP_BY_USER_ID)
     public ResponseEntity<List<Group>> getAllGroupsByCreator(@PathVariable("userId") Long creatorId) {
         return ResponseEntity.ok(groupService.getAllGroupsByUserId(creatorId));
     }
 
+    //ok
     @GetMapping(Routing.GROUP_BY_ID)
-    public ResponseEntity<Group> getAllGroupsById(@PathVariable("id") Long groupId) {
+    public ResponseEntity<Group> getGroupById(@PathVariable("id") Long groupId) {
         return ResponseEntity.ok(groupService.findById(groupId));
     }
 
+    //ok
     @PostMapping(Routing.ADD_TO_GROUP)
     public ResponseEntity<?> addUserToGroup(@PathVariable("id") Long groupId, @PathVariable("userId") Long userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -101,8 +111,9 @@ public class GroupController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
+    //ok
     @DeleteMapping(Routing.DELETE_TO_GROUP)
-    public ResponseEntity<?> deleteUserToGroup(@PathVariable("id") Long groupId, @PathVariable("userId") Long userId) {
+    public ResponseEntity<?> deleteUserFromGroup(@PathVariable("id") Long groupId, @PathVariable("userId") Long userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -115,11 +126,12 @@ public class GroupController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
+    //ok
     @PostMapping(Routing.MAIL_BY_GROUP_ID)
-    public ResponseEntity<?> sendMailToGroup(@RequestParam Map<String, String> params, @PathVariable("id") Long groupId) {
-        String subject = params.get("subject");
-        String body = HTMLConverter.convertToHTML(params.get("body"));
-        String from = params.get("from");
+    public ResponseEntity<?> sendMailToGroup(@RequestBody RequestMailToAlumni requestMail, @PathVariable("id") Long groupId) {
+        String subject = requestMail.getSubject();
+        String body = HTMLConverter.convertToHTML(requestMail.getBody());
+        String from = requestMail.getFrom();
         List<String> listMail = groupService.getAllMailOfGroup(groupId);
         listMail.stream().forEach(m -> {
             MailRequest mailRequest = MailRequest.builder()
@@ -134,11 +146,12 @@ public class GroupController {
         return ResponseEntity.ok("Send mail to group successfully!");
     }
 
+    //ok
     @PostMapping(Routing.MAIL)
-    public ResponseEntity<?> sendMailToAllMembersInGroups(@RequestParam Map<String, String> params) {
-        String subject = params.get("subject");
-        String body = HTMLConverter.convertToHTML(params.get("body"));
-        String from = params.get("from");
+    public ResponseEntity<?> sendMailToAllMembersInGroups(@RequestBody RequestMailToAlumni requestMail) {
+        String subject = requestMail.getSubject();
+        String body = HTMLConverter.convertToHTML(requestMail.getBody());
+        String from = requestMail.getFrom();
         List<String> listMail = groupService.getAllEmailOfAlumni();
         listMail.stream().forEach(m -> {
             MailRequest mailRequest = MailRequest.builder()
@@ -152,4 +165,5 @@ public class GroupController {
         });
         return ResponseEntity.ok("Send mail to all member successfully!");
     }
+
 }

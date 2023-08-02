@@ -4,31 +4,38 @@
  */
 package com.lqt.configs;
 
+import com.lqt.security.TokenInterceptor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpMethod;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-import org.springframework.web.servlet.view.JstlView;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.config.annotation.*;
 
-import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 /**
  * @author admin
  */
 @Configuration
 @EnableWebMvc
+@EnableScheduling
+@EnableAsync
 @EnableTransactionManagement
 @ComponentScan(basePackages = {
         "com.lqt",
@@ -37,7 +44,7 @@ import java.util.Properties;
         "com.lqt.service"
 })
 @PropertySource("classpath:configs.properties")
-public class WebAppContextConfig implements WebMvcConfigurer {
+public class WebAppContextConfig implements WebMvcConfigurer, AsyncConfigurer {
     @Value("${spring.mail.port}")
     private int port;
     @Value("${spring.mail.host}")
@@ -67,15 +74,15 @@ public class WebAppContextConfig implements WebMvcConfigurer {
         return new ModelMapper();
     }
 
-    @Bean
-    public InternalResourceViewResolver internalResourceViewResolver() {
-        InternalResourceViewResolver r = new InternalResourceViewResolver();
-        r.setViewClass(JstlView.class);
-        r.setPrefix("/WEB-INF/pages/");
-        r.setSuffix(".jsp");
-
-        return r;
-    }
+//    @Bean
+//    public InternalResourceViewResolver internalResourceViewResolver() {
+//        InternalResourceViewResolver r = new InternalResourceViewResolver();
+//        r.setViewClass(JstlView.class);
+//        r.setPrefix("/WEB-INF/pages/");
+//        r.setSuffix(".jsp");
+//
+//        return r;
+//    }
 
     @Bean
     public SimpleDateFormat simpleDateFormat() {
@@ -100,4 +107,35 @@ public class WebAppContextConfig implements WebMvcConfigurer {
 
         return mailSender;
     }
+
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+        resolver.setMaxUploadSize(5242880); // Cấu hình kích thước tối đa cho file upload (ở đây là 5MB)
+        return resolver;
+    }
+
+    @Override
+    public Executor getAsyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(25);
+        executor.setThreadNamePrefix("MyAsyncExecutor-");
+        executor.initialize();
+        return executor;
+    }
+
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/js/**").addResourceLocations("/resources/js/");
+        registry.addResourceHandler("/css/**").addResourceLocations("/resources/css/");
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new TokenInterceptor())
+                .addPathPatterns("/**");
+    }
+
+
 }

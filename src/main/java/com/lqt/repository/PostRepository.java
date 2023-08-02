@@ -12,5 +12,5 @@ public interface PostRepository {
     Post findPostById(Long id);
     Post findPostByIdAndUserId(Long id, Long userId);
     List<Post> findAllPosts();
-    List<Post> findPostsByUserId(Long userId);
+    List<Post> findPostsByUserId(Long userId, String direction);
 }

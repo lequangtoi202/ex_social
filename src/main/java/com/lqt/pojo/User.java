@@ -45,6 +45,10 @@ public class User implements Serializable {
     private String avatar;
 
     @Basic
+    @Column(name = "bg_image", nullable = true, length = 255)
+    private String backgroundImage;
+
+    @Basic
     @Column(name = "password_reset_token", nullable = true, length = 255)
     private String passwordResetToken;
 
@@ -75,4 +79,15 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "userId")
     private List<Survey> surveys;
 
+    public User(Long id, String username, String password, String email, String fullName, String phone, String avatar, String backgroundImage, String passwordResetToken) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.fullName = fullName;
+        this.phone = phone;
+        this.avatar = avatar;
+        this.backgroundImage = backgroundImage;
+        this.passwordResetToken = passwordResetToken;
+    }
 }
