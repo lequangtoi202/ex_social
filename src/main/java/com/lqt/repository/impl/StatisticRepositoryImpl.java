@@ -1,5 +1,7 @@
 package com.lqt.repository.impl;
 
+import com.lqt.dto.PostStatsResponse;
+import com.lqt.dto.StatsUserResponse;
 import com.lqt.repository.StatisticRepository;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -8,7 +10,12 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -22,7 +29,7 @@ public class StatisticRepositoryImpl implements StatisticRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createNativeQuery("SELECT count(c.id) FROM comments c where posts_id=:postId");
         q.setParameter("postId", postId);
-        return (int) q.getSingleResult();
+        return ((BigInteger) q.getSingleResult()).intValue();
     }
 
     @Override
@@ -30,7 +37,7 @@ public class StatisticRepositoryImpl implements StatisticRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createNativeQuery("SELECT count(i.id) FROM interactions i where posts_id=:postId");
         q.setParameter("postId", postId);
-        return (int) q.getSingleResult();
+        return ((BigInteger) q.getSingleResult()).intValue();
     }
 
     @Override
@@ -38,14 +45,22 @@ public class StatisticRepositoryImpl implements StatisticRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createNativeQuery("SELECT count(s.id) FROM shares s where posts_id=:postId");
         q.setParameter("postId", postId);
-        return (int) q.getSingleResult();
+        return ((BigInteger) q.getSingleResult()).intValue();
     }
 
     @Override
     public int countAllUsers() {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createNativeQuery("SELECT count(*) FROM users");
-        return (int) q.getSingleResult();
+        return ((BigInteger) q.getSingleResult()).intValue();
+    }
+
+    @Override
+    public int countAllGroups() {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createNativeQuery("SELECT COUNT(*) FROM `groups`");
+
+        return q.getResultList().size();
     }
 
     @Override
@@ -53,39 +68,150 @@ public class StatisticRepositoryImpl implements StatisticRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createNativeQuery("SELECT count(*) FROM groups_members where group_id=:groupId");
         q.setParameter("groupId", groupId);
-        return (int) q.getSingleResult();
+        return ((BigInteger)q.getSingleResult()).intValue();
     }
 
     @Override
-    public int countNumberOfPosts(Map<String, String> params) {
+    public int countNumberOfPosts() {
         Session s = this.factory.getObject().getCurrentSession();
-        StringBuffer hql = new StringBuffer("SELECT COUNT(*) FROM Post WHERE 1=1");
+        Query q = s.createQuery("SELECT COUNT(*) FROM Post");
+        return ((Long)q.getSingleResult()).intValue();
+    }
+
+    @Override
+    public List<PostStatsResponse> statsNumberOfPosts(Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String sql = "";
         Map<String, Object> parameters = new HashMap<>();
-        if (params.containsKey("year")) {
-            hql.append(" AND YEAR(timestamp) = :year");
-            parameters.put("year", Integer.parseInt(params.get("year")));
-        }
+        if (params.containsKey("year") && !params.get("year").isEmpty()) {
+            if (params.containsKey("month") && !params.get("month").isEmpty()) {
+                parameters.put("year", Integer.parseInt(params.get("year")));
+                parameters.put("month", Integer.parseInt(params.get("month")));
+                sql = "SELECT DAY(p.timestamp), COUNT(*) FROM posts p WHERE YEAR(p.timestamp) = :year " +
+                        "AND MONTH(p.timestamp) = :month GROUP BY DAY(p.timestamp) ORDER BY DAY(p.timestamp)";
+            }else if (params.containsKey("quarter") && !params.get("quarter").isEmpty()) {
+                parameters.put("year", Integer.parseInt(params.get("year")));
+                if (Integer.parseInt(params.get("quarter")) == 1) {
+                    parameters.put("startMonth", 1);
+                    parameters.put("endMonth", 3);
+                } else if (Integer.parseInt(params.get("quarter")) == 2) {
+                    parameters.put("startMonth", 4);
+                    parameters.put("endMonth", 6);
+                } else if (Integer.parseInt(params.get("quarter")) == 3) {
+                    parameters.put("startMonth", 7);
+                    parameters.put("endMonth", 9);
+                }else {
+                    parameters.put("startMonth", 10);
+                    parameters.put("endMonth", 12);
+                }
 
-        if (params.containsKey("month")) {
-            if (!parameters.isEmpty()) {
-                hql.append(" AND");
+                sql = "SELECT MONTH(p.timestamp), COUNT(*) FROM posts p " +
+                        "WHERE YEAR(p.timestamp) = :year AND MONTH(p.timestamp) " +
+                        "BETWEEN :startMonth AND :endMonth GROUP BY MONTH(p.timestamp) ORDER BY MONTH(p.timestamp)";
+            } else {
+                parameters.put("year", Integer.parseInt(params.get("year")));
+                sql = "SELECT MONTH(p.timestamp), COUNT(*) FROM posts p " +
+                        "WHERE YEAR(p.timestamp) = :year GROUP BY MONTH(p.timestamp) ORDER BY MONTH(p.timestamp)";
             }
-            hql.append(" AND MONTH(timestamp) = :month");
-            parameters.put("month", Integer.parseInt(params.get("month")));
-        } else if (params.containsKey("quarter")) {
-            if (!parameters.isEmpty()) {
-                hql.append(" AND");
+        }else {
+            parameters.put("year", LocalDate.now().getYear());
+            if (params.containsKey("month") && !params.get("month").isEmpty()) {
+                parameters.put("month", Integer.parseInt(params.get("month")));
+                sql = "SELECT DAY(p.timestamp), COUNT(*) FROM posts p WHERE YEAR(p.timestamp) = :year " +
+                        "AND MONTH(p.timestamp) = :month GROUP BY DAY(p.timestamp) ORDER BY DAY(p.timestamp)";
+            } else if (params.containsKey("quarter") && !params.get("quarter").isEmpty()) {
+                if (Integer.parseInt(params.get("quarter")) == 1) {
+                    parameters.put("startMonth", 1);
+                    parameters.put("endMonth", 3);
+                } else if (Integer.parseInt(params.get("quarter")) == 2) {
+                    parameters.put("startMonth", 4);
+                    parameters.put("endMonth", 6);
+                } else if (Integer.parseInt(params.get("quarter")) == 3) {
+                    parameters.put("startMonth", 7);
+                    parameters.put("endMonth", 9);
+                }else {
+                    parameters.put("startMonth", 10);
+                    parameters.put("endMonth", 12);
+                }
+                sql = "SELECT MONTH(p.timestamp), COUNT(*) FROM posts p " +
+                        "WHERE YEAR(p.timestamp) = :year AND MONTH(p.timestamp) " +
+                        "BETWEEN :startMonth AND :endMonth GROUP BY MONTH(p.timestamp) ORDER BY MONTH(p.timestamp)";
+            } else {
+                sql = "SELECT MONTH(p.timestamp), COUNT(*) FROM posts p " +
+                        "WHERE YEAR(p.timestamp) = :year GROUP BY MONTH(p.timestamp) ORDER BY MONTH(p.timestamp)";
             }
-            hql.append(" AND QUARTER(timestamp) = :quarter");
-            parameters.put("quarter", Integer.parseInt(params.get("quarter")));
         }
-
-        Query<Integer> query = s.createQuery(hql.toString(), Integer.class);
+        Query query = s.createNativeQuery(sql);
         for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
             query.setParameter(parameter.getKey(), parameter.getValue());
         }
+        List<PostStatsResponse> response = new ArrayList<>();
+        List<Object[]> results = query.getResultList();
+        for (Object[] result : results) {
+                String columnName = result[0].toString();
+                Integer columnValue = ((BigInteger)result[1]).intValue();
 
-        Integer count = query.uniqueResult();
-        return count != null ? count.intValue() : 0;
+                PostStatsResponse postStatsResponse = new PostStatsResponse();
+                postStatsResponse.setLabel(columnName);
+                postStatsResponse.setData(columnValue);
+                response.add(postStatsResponse);
+        }
+
+        return response;
+    }
+
+    @Override
+    public List<StatsUserResponse> statsUser() {
+        Session s = this.factory.getObject().getCurrentSession();
+        String sql = "SELECT\n" +
+                "    category,\n" +
+                "    ROUND((count * 100 / total_users), 2) AS percentage\n" +
+                "FROM\n" +
+                "    (\n" +
+                "        SELECT\n" +
+                "            'alumni' AS category,\n" +
+                "            COUNT(*) AS count\n" +
+                "        FROM\n" +
+                "            alumni\n" +
+                "        JOIN\n" +
+                "            users ON alumni.users_id = users.id\n" +
+                "        UNION ALL\n" +
+                "        SELECT\n" +
+                "            'lecturer' AS category,\n" +
+                "            COUNT(*) AS count\n" +
+                "        FROM\n" +
+                "            lecturer\n" +
+                "        JOIN\n" +
+                "            users ON lecturer.users_id = users.id\n" +
+                "        UNION ALL\n" +
+                "        SELECT\n" +
+                "            'other' AS category,\n" +
+                "            COUNT(*) AS count\n" +
+                "        FROM\n" +
+                "            users\n" +
+                "        WHERE\n" +
+                "            users.id NOT IN (\n" +
+                "                SELECT users_id FROM alumni\n" +
+                "                UNION\n" +
+                "                SELECT users_id FROM lecturer\n" +
+                "            )\n" +
+                "    ) AS result\n" +
+                "CROSS JOIN\n" +
+                "    (\n" +
+                "        SELECT COUNT(*) AS total_users FROM users\n" +
+                "    ) AS total";
+        List<StatsUserResponse> responses = new ArrayList<>();
+        Query query = s.createNativeQuery(sql);
+        List<Object[]> results = query.getResultList();
+        for (Object[] result : results) {
+                String columnName = result[0].toString();
+                double columnValue = ((BigDecimal)result[1]).doubleValue();
+
+                StatsUserResponse statsUserResponse = new StatsUserResponse();
+                statsUserResponse.setName(columnName);
+                statsUserResponse.setPercent(columnValue);
+                responses.add(statsUserResponse);
+        }
+        return responses;
     }
 }

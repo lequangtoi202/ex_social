@@ -6,8 +6,10 @@ import com.lqt.pojo.Role;
 import com.lqt.pojo.Survey;
 import com.lqt.pojo.User;
 import com.lqt.service.*;
+import com.lqt.util.Routing;
 import com.lqt.util.SurveyType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,10 +25,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.lqt.util.Constants.PAGE_SIZE;
 
 @Controller
 public class AdminController {
@@ -96,9 +101,24 @@ public class AdminController {
 
     @PreAuthorize("hasRole('SYS_ADMIN')")
     @GetMapping("/admin")
-    public String index(Model model) {
+    public String index(Model model, @RequestParam(required = false) Map<String, String> params) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            List<StatsUserResponse> userResponses = statisticService.statsUsers();
+            if (params.size() != 0) {
+                model.addAttribute("statsPostResponse", statisticService.statsNumberOfPosts(params));
+            }else {
+                Map<String, String> newParams = Map.ofEntries(
+                        Map.entry("year", ""),
+                        Map.entry("month", "")
+                );
+                model.addAttribute("statsPostResponse", statisticService.statsNumberOfPosts(newParams));
+            }
+            model.addAttribute("userResponses", userResponses);
+            model.addAttribute("totalUsers", statisticService.countAllUsers());
+            model.addAttribute("totalAlumni", userDetailServiceImpl.getAllAlumni().size());
+            model.addAttribute("totalPosts", statisticService.countNumberOfPostsWithoutParam());
+            model.addAttribute("totalGroups", statisticService.countAllGroups());
             return "index";
         } else {
             return "redirect:/admin/login";
@@ -106,21 +126,42 @@ public class AdminController {
     }
 
     @GetMapping("/admin/users")
-    public String getAllUsers(Model model) {
+    public String getAllUsers(Model model, @RequestParam(value = "page", defaultValue = "1") int page) {
         List<UserDto> userDtos = userDetailServiceImpl.getAllUsers();
-        model.addAttribute("users", userDtos);
+        int totalRecords = userDtos.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
+
+        int startIndex = (page - 1) * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
+        List<UserDto> currentPageRecords = userDtos.subList(startIndex, endIndex);
+        model.addAttribute("users", currentPageRecords);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
         return "user";
     }
 
     @GetMapping("/admin/groups")
-    public String getAllGroups(Model model, @RequestParam(value = "name", required = false, defaultValue = "") String name) {
+    public String getAllGroups(Model model,
+                               @RequestParam(value = "name", required = false, defaultValue = "") String name,
+                               @RequestParam(value = "page", required = false, defaultValue = "1")int page) {
+
         List<Group> groups = groupService.getAllGroups(name);
+        int totalRecords = groups.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
+
+        int startIndex = (page - 1) * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
+
+        List<Group> currentPageRecords = groups.subList(startIndex, endIndex);
         Map<Long, Integer> numOfUsers = new HashMap<>();
         groups.forEach(g -> {
             int numOfUser = statisticService.countNumberOfUserInGroup(g.getId());
             numOfUsers.put(g.getId(), numOfUser);
         });
-        model.addAttribute("groups", groups);
+
+        model.addAttribute("groups", currentPageRecords);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
         model.addAttribute("numOfUsers", numOfUsers);
         return "group";
     }
@@ -160,9 +201,20 @@ public class AdminController {
 
 
     @GetMapping("/admin/groups/{groupId}/members")
-    public String getUsersOfGroup(@PathVariable("groupId") Long groupId, Model model) {
-        List<UserDto> users = groupService.getAllUsersOfGroup(groupId);
-        model.addAttribute("users", users);
+    public String getUsersOfGroup(@PathVariable("groupId") Long groupId,
+                                  Model model,
+                                  @RequestParam(value = "page", required = false, defaultValue = "1")int page) {
+        List<UserDto> userDtos = groupService.getAllUsersOfGroup(groupId);
+        int totalRecords = userDtos.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
+
+        int startIndex = (page - 1) * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
+        List<UserDto> currentPageRecords = userDtos.subList(startIndex, endIndex);
+        model.addAttribute("users", currentPageRecords);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("groupId", groupId);
         return "group-user";
     }
 
@@ -185,8 +237,15 @@ public class AdminController {
     }
 
     @GetMapping("/admin/posts")
-    public String getAllPosts(Model model) {
+    public String getAllPosts(Model model, @RequestParam(value = "page", defaultValue = "1") int page) {
         List<PostDto> postDtos = postService.getAllPosts();
+        int totalRecords = postDtos.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
+
+        int startIndex = (page - 1) * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
+        List<PostDto> currentPageRecords = postDtos.subList(startIndex, endIndex);
+
         Map<Long, Integer> interactions = new HashMap<>();
         Map<Long, Integer> numberOfComments = new HashMap<>();
         postDtos.forEach(p -> {
@@ -195,7 +254,9 @@ public class AdminController {
             interactions.put(p.getId(), likes);
             numberOfComments.put(p.getId(), comments);
         });
-        model.addAttribute("posts", postDtos);
+        model.addAttribute("posts", currentPageRecords);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
         model.addAttribute("interactions", interactions);
         model.addAttribute("numberOfComments", numberOfComments);
         return "post";
@@ -218,9 +279,17 @@ public class AdminController {
 
     //    SURVEY
     @GetMapping("/admin/surveys")
-    public String getAllSurvey(Model model) {
+    public String getAllSurveys(Model model, @RequestParam(value = "page", defaultValue = "1") int page) {
         List<SurveyDto> surveyDtos = surveyService.getAllSurveys();
-        model.addAttribute("surveys", surveyDtos);
+        int totalRecords = surveyDtos.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
+
+        int startIndex = (page - 1) * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
+        List<SurveyDto> currentPageRecords = surveyDtos.subList(startIndex, endIndex);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("surveys", currentPageRecords);
         return "survey";
     }
 

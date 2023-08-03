@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
@@ -13,6 +16,9 @@ import javax.persistence.*;
 @Builder
 public class AlumniDto {
     private Long id;
+    @NotBlank
+    @NotNull
+    @Size(min = 10, max = 10)
     private String studentId;
     private Boolean isConfirmed;
     private Long userId;

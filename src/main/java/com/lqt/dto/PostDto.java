@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import java.sql.Timestamp;
 
 @Data
@@ -13,6 +14,7 @@ import java.sql.Timestamp;
 @Builder
 public class PostDto {
     private Long id;
+    @NotBlank
     private String content;
     private Timestamp timestamp;
     private Boolean isSurvey;

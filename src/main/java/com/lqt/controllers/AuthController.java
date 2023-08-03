@@ -24,6 +24,7 @@ import javax.persistence.PersistenceContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @RestController
 public class AuthController {
@@ -35,7 +36,7 @@ public class AuthController {
     private UserService userDetailServiceImpl;
 
     @PostMapping(Routing.LOGIN)
-    public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpServletResponse response) throws Exception {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginDto loginDto, HttpServletResponse response) throws Exception {
         authenticate(loginDto.getUsername(), loginDto.getPassword());
 
         final UserDetails userDetails = userDetailServiceImpl
@@ -81,18 +82,18 @@ public class AuthController {
     }
 
     @PostMapping(Routing.ADMIN_REGISTER)
-    public void adminRegister(@RequestBody UserDto userDto, @RequestPart("avatar")MultipartFile avatar) throws Exception {
+    public void adminRegister(@RequestBody @Valid UserDto userDto, @RequestPart("avatar")MultipartFile avatar) throws Exception {
         authService.userRegister(userDto, avatar);
     }
 
     @PostMapping(Routing.ALUMNI_REGISTER)
-    public ResponseEntity<AlumniResponse> alumniRegister(@RequestBody AlumniRequest alumniRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
+    public ResponseEntity<AlumniResponse> alumniRegister(@RequestBody @Valid AlumniRequest alumniRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
         AlumniResponse alumniResponse = authService.alumniRegister(alumniRequest, avatar);
         return new ResponseEntity<>(alumniResponse, HttpStatus.CREATED);
     }
 
     @PostMapping(Routing.LECTURER_REGISTER)
-    public ResponseEntity<LecturerResponse> lecturerRegister(@RequestBody LecturerRequest lecturerRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
+    public ResponseEntity<LecturerResponse> lecturerRegister(@RequestBody @Valid LecturerRequest lecturerRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
         LecturerResponse lecturerResponse = authService.lecturerRegister(lecturerRequest, avatar);
         return new ResponseEntity<>(lecturerResponse, HttpStatus.CREATED);
     }

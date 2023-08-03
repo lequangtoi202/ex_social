@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,7 +46,7 @@ public class GroupController {
 
     //ok
     @PostMapping(Routing.GROUP)
-    public ResponseEntity<?> createGroup(@RequestBody Group group) {
+    public ResponseEntity<?> createGroup(@RequestBody @Valid Group group) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -58,7 +59,7 @@ public class GroupController {
 
     //ok
     @PutMapping(Routing.GROUP_BY_ID)
-    public ResponseEntity<?> updateGroup(@RequestBody Group group, @PathVariable("id") Long groupId) {
+    public ResponseEntity<?> updateGroup(@RequestBody @Valid Group group, @PathVariable("id") Long groupId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();

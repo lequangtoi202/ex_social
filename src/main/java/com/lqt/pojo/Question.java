@@ -3,6 +3,7 @@ package com.lqt.pojo;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -22,6 +23,7 @@ public class Question implements Serializable {
 
     @Basic
     @Column(name = "content", nullable = true, length = 255)
+    @NotEmpty
     private String content;
 
     @Basic

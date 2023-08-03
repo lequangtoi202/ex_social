@@ -50,5 +50,9 @@ public final class Routing {
     public static final String RESPONSE = BASE_URL + "/survey/{surveyId}/responses";
     public static final String RESPONSE_BY_SURVEY_AND_QUESTION_ID = BASE_URL + "/survey/{surveyId}/questions/{questionId}/responses";
     public static final String RESPONSE_BY_SURVEY_AND_QUESTION_ID_AND_ID = BASE_URL + "/survey/{surveyId}/questions/{questionId}/responses/{resId}";
+    /*STATISTIC*/
     public static final String COUNT_USER_OF_GROUP = BASE_URL + "/groups/{groupId}/users/count";
+    public static final String COUNT_USER_OF_SYSTEM = BASE_URL + "/users/count";
+    public static final String STATS_USER_OF_SYSTEM = BASE_URL + "/stats/users";
+    public static final String COUNT_POST_OF_SYSTEM = BASE_URL + "/posts/count";
 }

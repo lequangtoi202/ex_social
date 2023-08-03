@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -41,7 +42,7 @@ public class PostController {
 
     //ok
     @PostMapping(Routing.POST)
-    public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
+    public ResponseEntity<?> createPost(@RequestBody @Valid PostDto postDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -55,7 +56,7 @@ public class PostController {
 
     //ok
     @PutMapping(Routing.POST_BY_ID)
-    public ResponseEntity<?> updatePost(@RequestBody PostDto postDto, @PathVariable("id") Long postId) {
+    public ResponseEntity<?> updatePost(@RequestBody @Valid PostDto postDto, @PathVariable("id") Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();

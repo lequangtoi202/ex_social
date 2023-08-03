@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Data
@@ -15,6 +17,8 @@ import java.sql.Timestamp;
 @Builder
 public class CommentDto {
     private Long id;
+    @NotBlank
+    @NotNull
     private String content;
     private Timestamp timestamp;
     private Long postId;

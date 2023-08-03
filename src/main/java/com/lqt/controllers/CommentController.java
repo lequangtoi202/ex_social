@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -43,7 +44,7 @@ public class CommentController {
 
     //ok
     @PostMapping(Routing.COMMENT_BY_POST_ID)
-    public ResponseEntity<?> createCommentToPost(@RequestBody CommentDto commentDto, @PathVariable("postId") Long postId) {
+    public ResponseEntity<?> createCommentToPost(@RequestBody @Valid CommentDto commentDto, @PathVariable("postId") Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -57,7 +58,7 @@ public class CommentController {
 
     //ok
     @PostMapping(Routing.COMMENT_BY_COMMENT_ID)
-    public ResponseEntity<?> replyCommentToComment(@RequestBody CommentDto commentDto, @PathVariable("postId") Long postId, @PathVariable("id") Long commentId) {
+    public ResponseEntity<?> replyCommentToComment(@RequestBody @Valid CommentDto commentDto, @PathVariable("postId") Long postId, @PathVariable("id") Long commentId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -71,7 +72,7 @@ public class CommentController {
 
     //ok
     @PutMapping(Routing.COMMENT_BY_POST_AND_ID)
-    public ResponseEntity<?> updateComment(@RequestBody CommentDto commentDto, @PathVariable("id") Long commentId, @PathVariable("postId") Long postId) {
+    public ResponseEntity<?> updateComment(@RequestBody @Valid CommentDto commentDto, @PathVariable("id") Long commentId, @PathVariable("postId") Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.ws.rs.PathParam;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class UserController {
 
     //ok
     @PutMapping(Routing.ALUMNI_PROFILE)
-    public ResponseEntity<AlumniResponse> updateProfileAlumni(@RequestBody AlumniRequest alumniRequest) {
+    public ResponseEntity<AlumniResponse> updateProfileAlumni(@RequestBody @Valid AlumniRequest alumniRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -52,7 +53,7 @@ public class UserController {
 
     //ok
     @PutMapping(Routing.LECTURER_PROFILE)
-    public ResponseEntity<LecturerResponse> updateProfileLecturer(@RequestBody LecturerRequest lecturerRequest) {
+    public ResponseEntity<LecturerResponse> updateProfileLecturer(@RequestBody @Valid LecturerRequest lecturerRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
