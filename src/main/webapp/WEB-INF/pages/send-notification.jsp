@@ -13,7 +13,7 @@
         <c:set var="groupId" value="${groupId}" />
         <input type="text" id="groupId" value="${groupId}" hidden >
     </c:if>
-    <form id="sendMailForm">
+    <form id="editGroupForm">
         <label for="subject">Subject:</label>
         <input type="text" id="subject" name="subject" required><br><br>
 

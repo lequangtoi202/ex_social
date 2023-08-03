@@ -1,11 +1,11 @@
 function viewUserDetail(userId) {
-    const url = `http://localhost:8080/admin/users/${userId}`;
+    const url = `http://localhost:8081/admin/users/${userId}`;
     window.location.href = url;
 }
 
 function getAllUserByFullName(input) {
     const inputValue = input.value;
-    axios.get(`http://localhost:8080/api/v1/users?name=${inputValue}`)
+    axios.get(`http://localhost:8081/api/v1/users?name=${inputValue}`)
         .then(response => {
             const users = response.data;
             updateTable(users);
@@ -24,9 +24,9 @@ function confirmDeleteUser(userId) {
 }
 
 function deleteUser(userId) {
-    axios.delete(`http://localhost:8080/api/v1/users/${userId}`)
+    axios.delete(`http://localhost:8081/api/v1/users/${userId}`)
         .then(response => {
-            window.location.href = "http://localhost:8080/admin/users";
+            window.location.href = "http://localhost:8081/admin/users";
         })
         .catch(e => {
             console.log(e.response)
@@ -37,11 +37,11 @@ function getGroupByName(input) {
     const inputValue = input.value;
     let groups;
     let countUserOfGroup = new Map();
-    axios.get(`http://localhost:8080/api/v1/groups?name=${inputValue}`)
+    axios.get(`http://localhost:8081/api/v1/groups?name=${inputValue}`)
         .then(response => {
             groups = response.data;
             return Promise.all(groups.map(g => {
-                return axios.get(`http://localhost:8080/api/v1/groups/${g.id}/users/count`)
+                return axios.get(`http://localhost:8081/api/v1/groups/${g.id}/users/count`)
                     .then(response => response.data)
                     .catch(e => {
                         return 0;
@@ -60,7 +60,7 @@ function getGroupByName(input) {
 }
 
 function editGroup(groupId) {
-    const url = `http://localhost:8080/admin/groups/${groupId}`;
+    const url = `http://localhost:8081/admin/groups/${groupId}`;
     window.location.href = url;
 }
 
@@ -72,9 +72,9 @@ function confirmDeleteGroup(groupId) {
 }
 
 function deleteGroup(groupId) {
-    axios.delete(`http://localhost:8080/api/v1/groups/${groupId}`)
+    axios.delete(`http://localhost:8081/api/v1/groups/${groupId}`)
         .then(response => {
-            window.location.href = "http://localhost:8080/admin/groups";
+            window.location.href = "http://localhost:8081/admin/groups";
         })
         .catch(e => {
             console.log(e.response.data)
@@ -89,9 +89,9 @@ function confirmDeletePost(postId) {
 }
 
 function deletePost(postId) {
-    axios.delete(`http://localhost:8080/api/v1/posts/${postId}`)
+    axios.delete(`http://localhost:8081/api/v1/posts/${postId}`)
         .then(response => {
-            window.location.href = "http://localhost:8080/admin/posts";
+            window.location.href = "http://localhost:8081/admin/posts";
         })
         .catch(e => {
             console.log(e.response.data)
@@ -99,12 +99,12 @@ function deletePost(postId) {
 }
 
 function addNewGroup() {
-    const url = `http://localhost:8080/admin/groups/add`;
+    const url = `http://localhost:8081/admin/groups/add`;
     window.location.href = url;
 }
 
 function viewUsersGroup(groupId) {
-    const url = `http://localhost:8080/admin/groups/${groupId}/members`;
+    const url = `http://localhost:8081/admin/groups/${groupId}/members`;
     window.location.href = url;
 }
 
@@ -116,9 +116,9 @@ function confirmDeleteUserFromGroup(groupId, userId) {
 }
 
 function deleteUserFromGroup(groupId, userId) {
-    axios.delete(`http://localhost:8080/api/v1/groups/${groupId}/users/${userId}/delete`)
+    axios.delete(`http://localhost:8081/api/v1/groups/${groupId}/users/${userId}/delete`)
         .then(response => {
-            window.location.href = "http://localhost:8080/admin/groups";
+            window.location.href = "http://localhost:8081/admin/groups";
         })
         .catch(e => {
             console.log(e.response.data)
@@ -126,10 +126,10 @@ function deleteUserFromGroup(groupId, userId) {
 }
 
 function confirmAlumni(userId) {
-    axios.post(`http://localhost:8080/api/v1/users/${userId}/confirm`)
+    axios.post(`http://localhost:8081/api/v1/users/${userId}/confirm`)
         .then(response => {
             console.log(response.data);
-            axios.get(`http://localhost:8080/api/v1/alumni`)
+            axios.get(`http://localhost:8081/api/v1/alumni`)
                 .then(response => {
                     const users = response.data;
                     console.log(users)
@@ -151,7 +151,7 @@ function filterUsers() {
     console.log(selectedRole)
     switch (selectedRole) {
         case 'alumni':
-            axios.get(`http://localhost:8080/api/v1/alumni`)
+            axios.get(`http://localhost:8081/api/v1/alumni`)
                 .then(response => {
                     const users = response.data;
                     console.log(users)
@@ -162,7 +162,7 @@ function filterUsers() {
                 });
             break;
         case 'lecturer':
-            axios.get(`http://localhost:8080/api/v1/lecturers`)
+            axios.get(`http://localhost:8081/api/v1/lecturers`)
                 .then(response => {
                     const users = response.data;
                     updateTable(users);
@@ -172,7 +172,7 @@ function filterUsers() {
                 });
             break;
         default:
-            axios.get(`http://localhost:8080/api/v1/users`)
+            axios.get(`http://localhost:8081/api/v1/users`)
                 .then(response => {
                     const users = response.data;
                     updateTable(users);
@@ -303,7 +303,7 @@ function updateGroupTable(groups, numOfUsers) {
 
 //=================SURVEY======================
 function addNewSurvey() {
-    const url = `http://localhost:8080/admin/surveys/add`;
+    const url = `http://localhost:8081/admin/surveys/add`;
     window.location.href = url;
 }
 
@@ -311,7 +311,7 @@ function filterRelateSurvey() {
     const selected = document.getElementById("surveyFilter").value;
     switch (selected) {
         case 'question':
-            // axios.get(`http://localhost:8080/api/v1/alumni`)
+            // axios.get(`http://localhost:8081/api/v1/alumni`)
             //     .then(response => {
             //         const users = response.data;
             //         console.log(users)
@@ -322,7 +322,7 @@ function filterRelateSurvey() {
             //     });
             break;
         case 'response':
-            // axios.get(`http://localhost:8080/api/v1/lecturers`)
+            // axios.get(`http://localhost:8081/api/v1/lecturers`)
             //     .then(response => {
             //         const users = response.data;
             //         updateTable(users);
@@ -332,7 +332,7 @@ function filterRelateSurvey() {
             //     });
             break;
         default:
-            // axios.get(`http://localhost:8080/api/v1/users`)
+            // axios.get(`http://localhost:8081/api/v1/users`)
             //     .then(response => {
             //         const users = response.data;
             //         updateTable(users);
@@ -345,7 +345,7 @@ function filterRelateSurvey() {
 }
 
 function editSurvey(surveyId) {
-    const url = `http://localhost:8080/admin/surveys/${surveyId}`;
+    const url = `http://localhost:8081/admin/surveys/${surveyId}`;
     window.location.href = url;
 }
 
@@ -357,9 +357,9 @@ function confirmDeleteSurvey(surveyId) {
 }
 
 function deleteSurvey(surveyId) {
-    axios.delete(`http://localhost:8080/api/v1/surveys/${surveyId}`)
+    axios.delete(`http://localhost:8081/api/v1/surveys/${surveyId}`)
         .then(response => {
-            window.location.href = "http://localhost:8080/admin/surveys";
+            window.location.href = "http://localhost:8081/admin/surveys";
         })
         .catch(error => {
             console.error('Error:', error);
@@ -449,7 +449,7 @@ function updateTableSurveyOrQuestionOrResponse(type, arrays) {
 //=============SEND notification===========
 //send to all alumni
 function sendToAllMemberInGroup(groupId) {
-    const url = `http://localhost:8080/admin/groups/${groupId}/send-notification`;
+    const url = `http://localhost:8081/admin/groups/${groupId}/send-notification`;
     window.location.href = url;
 }
 
@@ -462,21 +462,21 @@ document.getElementById("sendMailForm").addEventListener("submit", function (eve
     };
     const groupId = document.getElementById('groupId').value;
     if (typeof groupId !== "undefined" && groupId !== null) {
-        axios.post(`http://localhost:8080/api/v1/groups/${groupId}/mails`, params)
+        axios.post(`http://localhost:8081/api/v1/groups/${groupId}/mails`, params)
             .then(response => {
-                window.location.href = "http://localhost:8080/admin";
+                window.location.href = "http://localhost:8081/admin";
             })
             .catch(error => {
                 console.error('Error:', error);
             });
     } else {
-        axios.post('http://localhost:8080/api/v1/groups/mails', JSON.stringify(params), {
+        axios.post('http://localhost:8081/api/v1/groups/mails', JSON.stringify(params), {
             headers: {
                 'Content-Type': 'application/json'
             }
         })
             .then(response => {
-                window.location.href = "http://localhost:8080/admin";
+                window.location.href = "http://localhost:8081/admin";
             })
             .catch(error => {
                 console.error('Error:', error);

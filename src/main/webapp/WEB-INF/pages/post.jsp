@@ -8,8 +8,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <div class="container">
-    <div class="pt-5 table-responsive">
-        <table class="mt-2 table table-striped" style="background-color: #6CB0EC">
+    <div class="pt-5 pb-5 table-responsive">
+        <table class="mt-2 table" style="background-color: #fff">
             <thead>
             <tr>
                 <th scope="col">ID</th>
@@ -49,5 +49,25 @@
             </c:forEach>
             </tbody>
         </table>
+        <div class="text-center">
+            <c:if test="${currentPage > 1}">
+                <a href="<c:url value="/admin/users?posts=${currentPage - 1}"/>" class="my-button">Previous</a>
+            </c:if>
+
+            <c:forEach begin="1" end="${totalPages}" varStatus="loop">
+                <c:choose>
+                    <c:when test="${currentPage == loop.index}">
+                        <a href="#" class="my-button active">${loop.index}</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="<c:url value="/admin/posts?page=${loop.index}"/>" class="my-button">${loop.index}</a>
+                    </c:otherwise>
+                </c:choose>
+            </c:forEach>
+
+            <c:if test="${currentPage < totalPages}">
+                <a href="<c:url value="/admin/posts?page=${currentPage + 1}"/>" class="my-button">Next</a>
+            </c:if>
+        </div>
     </div>
 </div>

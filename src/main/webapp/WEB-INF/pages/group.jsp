@@ -7,7 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<div class="pt-5 table-responsive">
+<div class="pt-5 pb-5 table-responsive">
     <div>
         <div class="messageDiv">
             <c:if test="${success}">
@@ -22,15 +22,15 @@
             </c:if>
         </div>
     </div>
-    <div class="add-button-container d-flex gap-3">
+    <div class="add-button-container d-flex">
         <button class="btn btn-primary" onclick="addNewGroup()">
             <i class="fas fa-plus"></i> Add
         </button>
         <div style="margin-left: 5px">
-            <input type="text" onchange="getGroupByName(this)"/>
+            <input type="text" placeholder="Search..." onchange="getGroupByName(this)"/>
         </div>
     </div>
-    <table class="mt-2 table table-striped" style="background-color: #6CB0EC">
+    <table class="mt-2 table" style="background-color: #fff">
         <thead>
         <tr>
             <th scope="col">ID</th>
@@ -70,6 +70,26 @@
         </c:forEach>
         </tbody>
     </table>
+    <div class="text-center">
+        <c:if test="${currentPage > 1}">
+            <a href="<c:url value="/admin/groups?page=${currentPage - 1}"/>" class="my-button">Previous</a>
+        </c:if>
+
+        <c:forEach begin="1" end="${totalPages}" varStatus="loop">
+            <c:choose>
+                <c:when test="${currentPage == loop.index}">
+                    <a href="#" class="my-button active">${loop.index}</a>
+                </c:when>
+                <c:otherwise>
+                    <a href="<c:url value="/admin/groups?page=${loop.index}"/>" class="my-button">${loop.index}</a>
+                </c:otherwise>
+            </c:choose>
+        </c:forEach>
+
+        <c:if test="${currentPage < totalPages}">
+            <a href="<c:url value="/admin/groups?page=${currentPage + 1}"/>" class="my-button">Next</a>
+        </c:if>
+    </div>
 </div>
 
 

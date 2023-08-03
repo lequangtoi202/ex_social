@@ -7,7 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<div class="pt-5">
+<div class="p-5">
     <form id="editGroupForm" action="<c:url value="/admin/groups/${groupId}"/>" method="post" modelAttribute="group">
         <div class="form-group">
             <label for="groupName">Group Name:</label>

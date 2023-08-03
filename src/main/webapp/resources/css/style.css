@@ -11,6 +11,12 @@ body {
     display: block;
 }
 
+.nav-item > a {
+    color: #fff5f5 !important;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
 .footer {
     position: relative;
     bottom: 0;
@@ -132,7 +138,7 @@ body {
 
 #editGroupForm {
     background-color: #9dd7ff;
-    width: 300px;
+    width: 400px;
     margin: auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -148,6 +154,9 @@ label {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
+}
+intput {
+    outline: none;
 }
 
 input[type="text"],
@@ -186,4 +195,67 @@ button:hover {
 .sec-footer {
     background: #212529;
     color: white;
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df!important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a!important;
+}
+
+.border-left-info{
+    border-left: 0.25rem solid #36b9cc!important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e!important;
+}
+
+@media (min-width: 768px) {
+    .chart-area {
+        height: 20rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .chart-pie {
+        height: calc(20rem - 43px) !important;
+    }
+}
+
+.font-weight-bold {
+    font-weight: 700;
+}
+
+select {
+    outline: none;
+}
+
+.text-gray-300 {
+    color: #aaaaaa;
+    font-weight: 300;
+}
+
+.my-button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.my-button.active {
+    background-color: #0066d2;
+    color: #fff;
+}
+
+.my-button:hover {
+    background-color: #0056b3;
+    color: #fff;
 }
