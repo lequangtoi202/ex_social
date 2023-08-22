@@ -74,12 +74,7 @@ public class  SecurityConfig extends WebSecurityConfigurerAdapter {
                 .requestMatchers("/admin/**", "/admin").hasAnyAuthority("SYS_ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
                 .anyRequest()
-                .authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/admin/login")
-                .defaultSuccessUrl("/admin")
-                .permitAll();
+                .authenticated();
 
         //http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 

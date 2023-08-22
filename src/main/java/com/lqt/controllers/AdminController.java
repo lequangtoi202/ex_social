@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -73,27 +74,31 @@ public class AdminController {
     public String processLoginAdmin(@ModelAttribute("loginDto") LoginDto loginDto,
                                     HttpServletResponse response,
                                     RedirectAttributes attributes) throws Exception {
-        authenticate(loginDto.getUsername(), loginDto.getPassword());
+        try {
+            authenticate(loginDto.getUsername(), loginDto.getPassword());
 
-        final UserDetails userDetails = userDetailServiceImpl
-                .loadUserByUsername(loginDto.getUsername());
-        User user = userDetailServiceImpl.findByUsername(userDetails.getUsername());
-        List<Role> roles = userDetailServiceImpl.getAllRoleOfUser(user.getId());
-        Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (!hasAdminRole) {
-            attributes.addFlashAttribute("error", "You don not have permission to access this page");
-            return "redirect:/admin/login";
-        }
-        JwtResponse jwtResponse = authService.login(userDetails);
-        if (jwtResponse != null) {
-            Cookie cookie = new Cookie("JWT_TOKEN", jwtResponse.getAccessToken());
-            cookie.setPath("/");
-            cookie.setMaxAge(3600);
+            final UserDetails userDetails = userDetailServiceImpl
+                    .loadUserByUsername(loginDto.getUsername());
+            User user = userDetailServiceImpl.findByUsername(userDetails.getUsername());
+            List<Role> roles = userDetailServiceImpl.getAllRoleOfUser(user.getId());
+            Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
+            if (!hasAdminRole) {
+                attributes.addFlashAttribute("error", "You don not have permission to access this page");
+                return "redirect:/admin/login";
+            }
+            JwtResponse jwtResponse = authService.login(userDetails);
+            if (jwtResponse != null) {
+                Cookie cookie = new Cookie("JWT_TOKEN", jwtResponse.getAccessToken());
+                cookie.setPath("/");
+                cookie.setMaxAge(3600);
 
-            response.addCookie(cookie);
-            return "redirect:/admin";
-        } else {
-            return "redirect:/admin/login";
+                response.addCookie(cookie);
+                return "redirect:/admin";
+            } else {
+                return "redirect:/admin/login";
+            }
+        }catch (BadCredentialsException e) {
+            return "redirect:/admin/login?error";
         }
     }
 
