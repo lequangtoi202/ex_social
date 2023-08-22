@@ -47,10 +47,15 @@ body {
     align-items: flex-start;
     border: 1px solid #ccc;
     padding: 20px;
-    margin-top: 20px;
+    margin: 0 auto;
+    width: 60%;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+}
+
+.wrapper {
+    padding: 50px 0;
 }
 
 .avatar {
@@ -258,4 +263,27 @@ select {
 .my-button:hover {
     background-color: #0056b3;
     color: #fff;
+}
+
+#memberList {
+    list-style: none;
+    padding: 0;
+}
+
+#searchResults {
+    width: 250px;
+    background: white;
+    margin-top: 3px;
+    border-radius: 3px;
+    box-shadow: 2px 2px #a7a5a5;
+}
+#memberList  li {
+    padding: 8px;
+}
+#memberList > li button {
+    margin-left: 10px;
+    cursor: pointer;
+    height: 30px;
+    padding: 10px;
+    line-height: 10px;
 }

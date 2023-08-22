@@ -18,6 +18,8 @@ public interface GroupService {
 
     List<Group> getAllGroupsByUserId(Long userId);
 
+    List<Group> getAllGroupsOfMeParticipated(Long userId);
+
     Boolean addMemberToGroup(Long userId, Long groupId, Long adminId);
 
     Boolean deleteMemberFromGroup(Long userId, Long groupId, Long adminId);

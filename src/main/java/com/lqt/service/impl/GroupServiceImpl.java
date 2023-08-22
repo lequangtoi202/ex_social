@@ -90,6 +90,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public List<Group> getAllGroupsOfMeParticipated(Long userId) {
+        return groupRepository.getAllGroupsOfMeParticipated(userId);
+    }
+
+    @Override
     public Boolean addMemberToGroup(Long userId, Long groupId, Long adminId) {
         Group group = groupRepository.findById(groupId);
         if (group == null){

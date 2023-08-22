@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.Multipart;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -13,18 +15,12 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Builder
 public class AlumniRequest {
-    @NotBlank
-    @NotNull
     private String username;
-    @NotBlank
-    @NotNull
+    private String displayName;
     private String password;
     private String confirmPassword;
-    @NotBlank
     private String email;
     private String fullName;
     private String phone;
-    @NotBlank
-    @NotNull
     private String studentId;
 }

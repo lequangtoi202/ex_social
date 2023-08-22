@@ -5,7 +5,7 @@
   Time: 9:52 PM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <div class="p-5" style="max-width: 500px; margin: 0 auto">
@@ -13,7 +13,7 @@
         <c:set var="groupId" value="${groupId}" />
         <input type="text" id="groupId" value="${groupId}" hidden >
     </c:if>
-    <form id="editGroupForm">
+    <form id="sendMailForm" accept-charset="UTF-8">
         <label for="subject">Subject:</label>
         <input type="text" id="subject" name="subject" required><br><br>
 

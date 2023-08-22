@@ -12,7 +12,6 @@ import com.lqt.util.Routing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,11 +23,11 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 import static com.lqt.util.Constants.YYYY_MM_DD;
 
 @RestController
+@CrossOrigin("*")
 public class GroupController {
     @Autowired
     private GroupService groupService;
@@ -40,7 +39,7 @@ public class GroupController {
     private JavaMailSender mailSender;
     //ok
     @GetMapping(Routing.GROUP)
-    public ResponseEntity<List<Group>> getAllGroups(@RequestParam(value = "name", required = false) String name) {
+    public ResponseEntity<List<Group>> getAllGroups(@RequestParam(value = "name", required = false, defaultValue = "") String name) {
         return ResponseEntity.ok(groupService.getAllGroups(name));
     }
 
@@ -89,6 +88,17 @@ public class GroupController {
     @GetMapping(Routing.GROUP_BY_USER_ID)
     public ResponseEntity<List<Group>> getAllGroupsByCreator(@PathVariable("userId") Long creatorId) {
         return ResponseEntity.ok(groupService.getAllGroupsByUserId(creatorId));
+    }
+
+    @GetMapping(Routing.GROUP_OF_USER)
+    public ResponseEntity<List<Group>> getAllGroupsOfMeParticipated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User currentUser = userService.getMyAccount(userDetails.getUsername());
+            return ResponseEntity.ok(groupService.getAllGroupsOfMeParticipated(currentUser.getId()));
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     //ok
@@ -149,7 +159,7 @@ public class GroupController {
 
     //ok
     @PostMapping(Routing.MAIL)
-    public ResponseEntity<?> sendMailToAllMembersInGroups(@RequestBody RequestMailToAlumni requestMail) {
+    public ResponseEntity<?> sendMailToAllMembers(@RequestBody RequestMailToAlumni requestMail) {
         String subject = requestMail.getSubject();
         String body = HTMLConverter.convertToHTML(requestMail.getBody());
         String from = requestMail.getFrom();

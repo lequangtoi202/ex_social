@@ -5,7 +5,7 @@
 --%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@page contentType="text/html" pageEncoding="UTF-8" %>
+<%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <div class="container-fluid p-4">
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
@@ -167,6 +167,13 @@
 
 <script type="text/javascript">
     window.onload = function () {
+        var currentURL = window.location.href;
+
+        var urlParams = new URLSearchParams(new URL(currentURL).search);
+
+        var month = urlParams.get("month");
+        var year = urlParams.get("year");
+        var quarter = urlParams.get("quarter");
 
         var dps = [[]];
         var chart = new CanvasJS.Chart("chartContainer", {
@@ -200,13 +207,17 @@
         </c:forEach>
 
         chart.render();
-
+        var time = (month !== null && month !== "")
+            ? ((year !== null && year !== "") ? month + ' - ' + year :  month +' - '+ new Date().getFullYear())
+            : ((quarter !== null && quarter !== "")
+                ? ((year !== null && year !== "") ? 'Quarter ' + quarter + ' - ' + year : 'Quarter ' + quarter +' - '+ new Date().getFullYear())
+                : (new Date().getFullYear()))
         var dps2 = [[]];
         var chart2 = new CanvasJS.Chart("chartContainer1", {
             theme: "light2", // "light1", "dark1", "dark2"
             animationEnabled: true,
             title: {
-                text: "Posts statistic"
+                text: "Posts statistic " + time
             },
             axisX: {
                 valueFormatString: "####"

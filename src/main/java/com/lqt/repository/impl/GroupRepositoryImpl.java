@@ -107,6 +107,16 @@ public class GroupRepositoryImpl implements GroupRepository {
     }
 
     @Override
+    public List<Group> getAllGroupsOfMeParticipated(Long userId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String sqlQuery = "SELECT g.* FROM `groups` g LEFT JOIN groups_members gm ON gm.group_id = g.id\n" +
+                "WHERE gm.user_id = :userId OR g.creator_id = :userId group by g.id";
+        TypedQuery<Group> q = (TypedQuery<Group>) entityManager.createNativeQuery(sqlQuery, Group.class);
+        q.setParameter("userId", userId);
+        return q.getResultList();
+    }
+
+    @Override
     public Boolean addMemberToGroup(GroupsMembers groupsMembers) {
         Session s = this.factory.getObject().getCurrentSession();
         try {
@@ -168,10 +178,9 @@ public class GroupRepositoryImpl implements GroupRepository {
     @Override
     public List<String> getAllEmailOfAlumni() {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createNativeQuery("SELECT u.email \n" +
-                "FROM `groups` g \n" +
-                "JOIN groups_members gm ON gm.group_id = g.id \n" +
-                "JOIN users u ON u.id = gm.user_id;\n");
+        Query q = s.createNativeQuery("SELECT u.email\n" +
+                "FROM users u\n" +
+                "JOIN alumni al ON al.users_id = u.id");
         return q.getResultList();
     }
 

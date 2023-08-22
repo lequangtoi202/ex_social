@@ -60,7 +60,7 @@ public class StatisticRepositoryImpl implements StatisticRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createNativeQuery("SELECT COUNT(*) FROM `groups`");
 
-        return q.getResultList().size();
+        return ((BigInteger)q.getSingleResult()).intValue();
     }
 
     @Override

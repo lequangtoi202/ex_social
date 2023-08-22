@@ -16,11 +16,6 @@
                 </c:if>
             </div>
         </div>
-        <div>
-            <button class="btn btn-primary" onclick="addNewSurvey()">
-                <i class="fas fa-plus"></i> Add
-            </button>
-        </div>
         <table class="mt-2 table" style="background-color: #fff">
             <thead>
             <tr>
@@ -45,9 +40,6 @@
                 <td>${s.postId}</td>
                 <td>${s.userId}</td>
                 <td class="action-buttons">
-                    <button class="btn btn-warning" onclick="editSurvey(${s.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
                     <button class="btn btn-danger" onclick="confirmDeleteSurvey(${s.id})">
                         <i class="fas fa-trash-alt"></i>
                     </button>

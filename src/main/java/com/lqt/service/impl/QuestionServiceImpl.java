@@ -84,13 +84,7 @@ public class QuestionServiceImpl implements QuestionService {
         if (survey == null){
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
-        List<Role> roles = userService.getAllRoleOfUser(adminId);
-        Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
-            return questionRepository.getAllQuestionBySurveyId(surveyId);
-        }else{
-            return null;
-        }
+        return questionRepository.getAllQuestionBySurveyId(surveyId);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto post(PostDto postDto, Long userId) {
         Post post = Post.builder()
-                .isLocked(postDto == null ? false : true)
+                .isLocked(postDto == null ?     true : false)
                 .userId(userId)
                 .content(postDto.getContent())
                 .isSurvey(postDto.getIsSurvey())
@@ -89,6 +89,22 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PostDto unlockPost(Long id, Long userId) {
+        Post post = postRepository.findPostById(id);
+        if (post == null){
+            throw new ResourceNotFoundException("Post", "id", id);
+        }
+        post.setIsLocked(false);
+        List<Role> roles = userService.getAllRoleOfUser(userId);
+        Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
+        if (hasAdminRole || post.getUserId() == userId){
+            return mapper.map(postRepository.unlockPost(post), PostDto.class);
+        }else{
+            return null;
+        }
+    }
+
+    @Override
     public PostDto findPostById(Long id) {
         Post post = postRepository.findPostById(id);
         return mapper.map(post, PostDto.class);
@@ -100,6 +116,25 @@ public class PostServiceImpl implements PostService {
         return posts.stream()
                 .map(p -> mapper.map(p, PostDto.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PostDto> getAllMyPostsAndSharePosts(Long currentUserId, String orderDir) {
+        String direction  = orderDir != null ? orderDir.toLowerCase() : "asc";
+        List<Post> posts = postRepository.findPostsByUserId(currentUserId, direction);
+        List<PostDto> postDtos = new ArrayList<>();
+        posts.forEach(p -> {
+            PostDto postDto = PostDto.builder()
+                    .isLocked(p.getIsLocked())
+                    .isSurvey(p.getIsSurvey())
+                    .content(p.getContent())
+                    .id(p.getId())
+                    .userId(p.getUserId())
+                    .timestamp(p.getTimestamp())
+                    .build();
+            postDtos.add(postDto);
+        });
+        return postDtos;
     }
 
     @Override

@@ -60,6 +60,8 @@ public interface UserRepository {
 
     LecturerResponse updatePasswordLecturer(User u);
 
+    List<Object[]> getAllLecturersNotUpdateNewPassword();
+
     Boolean lockLecturerWithoutChangeDefaultPassword();
 
     Boolean deleteUser(User user);

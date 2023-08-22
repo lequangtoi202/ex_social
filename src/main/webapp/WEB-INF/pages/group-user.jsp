@@ -5,9 +5,23 @@
   Time: 7:43 PM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <div class="pt-5 pb-5 table-responsive">
+    <div id="error-message" class="text-center alert alert-danger" style="display: none;"></div>
+    <div class="d-flex">
+        <div style="margin-left: 5px">
+            <input type="text" style="outline: none" placeholder="Search..." onchange="getUsersByName(this)"/>
+        </div>
+        <div style="margin-left: 5px">
+            <input type="text" id="groupIdInfo" hidden style="outline: none" value="${groupId}"/>
+        </div>
+    </div>
+    <div id="searchResults">
+        <ul id="memberList">
+            <!-- Placeholder for search results -->
+        </ul>
+    </div>
     <table class="table" style="background-color: #fff">
         <thead>
         <tr>

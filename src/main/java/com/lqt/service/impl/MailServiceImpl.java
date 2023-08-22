@@ -8,8 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -20,19 +24,21 @@ public class MailServiceImpl implements MailService {
 
     @Override
     @Async
-    public void sendMailForgotPassword(String recipients, String resetPasswordLink) {
+    public void sendMailForgotPassword(String recipients, String resetPasswordLink) throws MessagingException {
         logger.debug("RUN JOB: sendMailForgotPassword");
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(recipients);
-        message.setFrom("2051052140toi@ou.edu.vn");
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(recipients);
+        helper.setFrom("2051052140toi@ou.edu.vn");
         String subject = "Here is the link to reset your password";
         String content = "<p>Hello,</p>"+
                 "<p>You have request to reset your password.</p>"
                 + "<p>Click link below to change your password:</p>"
                 + "<p><b><a href=\"" + resetPasswordLink + "\">Change my password</a></b></p>"
                 + "<p>Ignore this email if you do remember your password, or you have not make a request</p>";
-        message.setSubject(subject);
-        message.setText(content);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
         mailSender.send(message);
         logger.debug("END JOB: sendMailForgotPassword");
     }

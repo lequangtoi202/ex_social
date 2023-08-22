@@ -18,6 +18,7 @@ public class UserDto {
     private String username;
     @NotBlank
     private String password;
+    private String displayName;
     @JsonIgnore
     @NotBlank
     private String confirmPassword;

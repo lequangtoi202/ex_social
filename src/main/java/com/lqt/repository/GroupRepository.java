@@ -20,6 +20,8 @@ public interface GroupRepository {
 
     List<Group> getAllGroupsByUserId(Long userId);
 
+    List<Group> getAllGroupsOfMeParticipated(Long userId);
+
     Boolean addMemberToGroup(GroupsMembers groupsMembers);
 
     GroupsMembers findMemberInGroupByUserIdAndGroupId(Long userId, Long groupId);

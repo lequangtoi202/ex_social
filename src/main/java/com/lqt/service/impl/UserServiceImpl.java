@@ -57,6 +57,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setEmail(alumniRequest.getEmail());
         user.setFullName(alumniRequest.getFullName());
+        user.setDisplayName(alumniRequest.getDisplayName());
         user.setPassword(password);
         user.setPhone(alumniRequest.getPhone());
         user.setUsername(alumniRequest.getUsername());
@@ -81,6 +82,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setEmail(lecturerRequest.getEmail());
         user.setFullName(lecturerRequest.getFullName());
+        user.setDisplayName(lecturerRequest.getDisplayName());
         user.setPassword(passwordEncoder.encode("ou@123"));
         user.setPhone(lecturerRequest.getPhone());
         user.setUsername(lecturerRequest.getUsername());
@@ -108,6 +110,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setEmail(userDto.getEmail());
         user.setFullName(userDto.getFullName());
+        user.setDisplayName(userDto.getDisplayName());
         user.setPassword(password);
         user.setPhone(userDto.getPhone());
         user.setUsername(userDto.getUsername());
@@ -144,6 +147,7 @@ public class UserServiceImpl implements UserService {
             UserDto userDto = UserDto.builder()
                     .avatarLink(u.getAvatar())
                     .username(u.getUsername())
+                    .displayName(u.getDisplayName())
                     .email(u.getEmail())
                     .fullName(u.getFullName())
                     .password(u.getPassword())
@@ -162,6 +166,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id);
         UserDto userDto = UserDto.builder()
                 .username(user.getUsername())
+                .displayName(user.getDisplayName())
                 .backgroundImage(user.getBackgroundImage())
                 .id(user.getId())
                 .phone(user.getPhone())
@@ -182,6 +187,7 @@ public class UserServiceImpl implements UserService {
             UserDto userDto = UserDto.builder()
                     .avatarLink(u.getAvatar())
                     .username(u.getUsername())
+                    .displayName(u.getDisplayName())
                     .email(u.getEmail())
                     .fullName(u.getFullName())
                     .password(u.getPassword())
@@ -280,6 +286,7 @@ public class UserServiceImpl implements UserService {
         }
         u.setEmail(lecturerRequest.getEmail());
         u.setPhone(lecturerRequest.getPhone());
+        u.setDisplayName(lecturerRequest.getDisplayName());
         u.setFullName(lecturerRequest.getFullName());
         u.setPhone(lecturerRequest.getPhone());
         u.setBackgroundImage(null);
@@ -298,6 +305,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("Alumni", "user_id", u.getId());
         }
         u.setEmail(alumniRequest.getEmail());
+        u.setDisplayName(alumniRequest.getDisplayName());
         u.setPhone(alumniRequest.getPhone());
         u.setFullName(alumniRequest.getFullName());
         u.setBackgroundImage(null);

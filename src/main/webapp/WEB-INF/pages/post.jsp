@@ -5,7 +5,7 @@
   Time: 6:12 PM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <div class="container">
     <div class="pt-5 pb-5 table-responsive">
@@ -34,10 +34,10 @@
                     <c:if test="${interactions.get(p.id) == null}">
                         <td>0</td>
                     </c:if>
-                    <c:if test="${comments.get(p.id) != null}">
-                        <td>${comments.get(p.id)}</td>
+                    <c:if test="${numberOfComments.get(p.id) != null}">
+                        <td>${numberOfComments.get(p.id)}</td>
                     </c:if>
-                    <c:if test="${comments.get(p.id) == null}">
+                    <c:if test="${numberOfComments.get(p.id) == null}">
                         <td>0</td>
                     </c:if>
                     <td class="action-buttons">
@@ -51,7 +51,7 @@
         </table>
         <div class="text-center">
             <c:if test="${currentPage > 1}">
-                <a href="<c:url value="/admin/users?posts=${currentPage - 1}"/>" class="my-button">Previous</a>
+                <a href="<c:url value="/admin/posts?page=${currentPage - 1}"/>" class="my-button">Previous</a>
             </c:if>
 
             <c:forEach begin="1" end="${totalPages}" varStatus="loop">

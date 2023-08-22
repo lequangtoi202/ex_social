@@ -24,6 +24,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @Controller
+@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class PostController {
     @Autowired
     private PostService postService;
@@ -40,6 +41,18 @@ public class PostController {
         return ResponseEntity.ok(postService.findAllPosts());
     }
 
+    @GetMapping(Routing.MY_POST)
+    public ResponseEntity<List<PostDto>> getAllMyPostsAndSharePosts() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User currentUser = userService.getMyAccount(userDetails.getUsername());
+            return ResponseEntity.ok(postService.getAllMyPostsAndSharePosts(currentUser.getId(), "desc"));
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+
+    }
     //ok
     @PostMapping(Routing.POST)
     public ResponseEntity<?> createPost(@RequestBody @Valid PostDto postDto) {
@@ -53,6 +66,7 @@ public class PostController {
             return ResponseEntity.badRequest().build();
         }
     }
+
 
     //ok
     @PutMapping(Routing.POST_BY_ID)
@@ -111,6 +125,19 @@ public class PostController {
         }
     }
 
+    @PostMapping(Routing.UNLOCK_POST)
+    public ResponseEntity<?> unlockPost(@PathVariable("id") Long postId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User currentUser = userService.getMyAccount(userDetails.getUsername());
+            PostDto postDto = postService.unlockPost(postId, currentUser.getId());
+            return new ResponseEntity<>(postDto == null ? new ResponseEntity<>("You do not have permission to lock this post", HttpStatus.UNAUTHORIZED) : postDto, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     //ok
     @PostMapping(Routing.SHARE_POST)
     public ResponseEntity<?> sharePost(@PathVariable("id") Long postId) {
@@ -142,11 +169,24 @@ public class PostController {
             }
             if (exists) {
                 Action action = Action.valueOf(actionReq.toUpperCase());
-                interactionService.interactWithPost(postId, currentUser.getId(), action);
-                return new ResponseEntity<>("Interact post successfully!", HttpStatus.OK);
+
+                return new ResponseEntity<>(interactionService.interactWithPost(postId, currentUser.getId(), action), HttpStatus.OK);
             } else {
                 throw new ResourceNotFoundException("Action", "name", actionReq);
             }
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    @GetMapping(Routing.POST_INTERACTION_BY_USER)
+    public ResponseEntity<?> getInteractionPostOfUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User currentUser = userService.getMyAccount(userDetails.getUsername());
+            return new ResponseEntity<>(interactionService.getAllPostReactionOfUser(currentUser.getId()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

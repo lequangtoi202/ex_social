@@ -14,6 +14,7 @@ public class TilesConfig {
                 = new UrlBasedViewResolver();
         viewResolver.setViewClass(TilesView.class);
         viewResolver.setOrder(-2);
+        viewResolver.setContentType("text/html;charset=UTF-8");
         return viewResolver;
     }
 

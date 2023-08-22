@@ -13,6 +13,7 @@ import com.lqt.service.MailService;
 import com.lqt.service.UserService;
 import com.lqt.util.Routing;
 import com.lqt.util.Utility;
+import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,18 +26,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.ws.rs.PathParam;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
     private MailService mailService;
-
+    @Autowired
+    private ModelMapper mapper;
     //ok
     @PutMapping(Routing.ALUMNI_PROFILE)
     public ResponseEntity<AlumniResponse> updateProfileAlumni(@RequestBody @Valid AlumniRequest alumniRequest) {
@@ -79,6 +83,16 @@ public class UserController {
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @GetMapping(Routing.IS_EXIST_EMAIL)
+    public ResponseEntity<Boolean> isExistEmail(@RequestParam("email") String email) {
+        return ResponseEntity.ok(userService.existsByEmail(email));
+    }
+
+    @GetMapping(Routing.IS_EXIST_USERNAME)
+    public ResponseEntity<Boolean> isExistByUsername(@RequestParam("username") String username) {
+        return ResponseEntity.ok(userService.existsByUsername(username));
     }
 
     //ok
@@ -139,22 +153,25 @@ public class UserController {
         }
     }
 
-    @PostMapping(Routing.FORGOT_PASSWORD)
-    public ResponseEntity<String> executeForgotPassword(HttpServletRequest request, @RequestParam String email) {
+    @GetMapping(Routing.FORGOT_PASSWORD)
+    public ResponseEntity<String> executeForgotPassword(HttpServletRequest request, @RequestParam("email") String email) {
         String token = RandomString.make(45);
         try {
             userService.updateResetPassword(token, email);
-            String resetPasswordLink = Utility.getSiteURL(request) + "/api/v1/users/reset-password?token=" + token;
+            String resetPasswordLink = "http://localhost:3000/reset-password?token=" + token;
 
             mailService.sendMailForgotPassword(email, resetPasswordLink);
             return ResponseEntity.ok().body(resetPasswordLink);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.badRequest().body("Resource not found with email " + email);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Send email has error " + email);
         }
     }
 
     @GetMapping(Routing.RESET_PASSWORD)
-    public ResponseEntity<String> checkTokenIsValid(@RequestParam String token) {
+    public ResponseEntity<String> checkTokenIsValid(@RequestParam("token") String token) {
         UserDto userDto = userService.findByResetPasswordToken(token);
         if (userDto != null) {
             return ResponseEntity.ok().body("Token is valid!");
@@ -188,6 +205,7 @@ public class UserController {
                     .username(user.getUsername())
                     .fullName(user.getFullName())
                     .email(user.getEmail())
+                    .displayName(user.getDisplayName())
                     .backgroundImage(user.getBackgroundImage())
                     .password(user.getPassword())
                     .avatarLink(user.getAvatar())
@@ -227,6 +245,26 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping(Routing.USER_BY_USERNAME)
+    public ResponseEntity<UserDto> getUserByUsername(@RequestParam(value = "username") String username) {
+        User user = userService.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.ok(mapper.map(userService.findByUsername(username), UserDto.class));
+        }
+    }
+
+    @GetMapping(Routing.USER_BY_EMAIL)
+    public ResponseEntity<UserDto> getUserByEmail(@RequestParam(value = "email") String email) {
+        UserDto user = userService.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.ok(user);
+        }
+    }
+
     @PreAuthorize("hasRole('SYS_ADMIN')")
     @GetMapping(Routing.LECTURER)
     public ResponseEntity<List<LecturerResponse>> getAllLecturers() {
@@ -247,7 +285,11 @@ public class UserController {
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+    }
 
+    @GetMapping(Routing.USER_BY_ID)
+    public ResponseEntity<?> getUserById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(userService.findUserById(id));
     }
 
     //ok

@@ -11,7 +11,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface AuthService {
     JwtResponse login(UserDetails userDetails);
+
     AlumniResponse alumniRegister(AlumniRequest alumniRequest, MultipartFile avatar);
+
     UserDto userRegister(UserDto userDto, MultipartFile avatar);
+
     LecturerResponse lecturerRegister(LecturerRequest lecturerRequest, MultipartFile avatar);
 }

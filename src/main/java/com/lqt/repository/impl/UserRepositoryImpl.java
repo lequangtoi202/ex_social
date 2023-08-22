@@ -53,7 +53,9 @@ public class UserRepositoryImpl implements UserRepository {
                 .builder()
                 .avatarLink(u.getAvatar())
                 .email(u.getEmail())
+                .password(u.getPassword())
                 .fullName(u.getFullName())
+                .displayName(u.getDisplayName())
                 .username(u.getUsername())
                 .studentId(alumni.getStudentId())
                 .phone(u.getPhone())
@@ -86,6 +88,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .bgImage(u.getBackgroundImage())
                 .email(u.getEmail())
                 .fullName(u.getFullName())
+                .displayName(u.getDisplayName())
                 .phone(u.getPhone())
                 .isLocked(lecturer.getIsLocked())
                 .username(u.getUsername())
@@ -238,6 +241,7 @@ public class UserRepositoryImpl implements UserRepository {
                     .id(user.getId())
                     .username(user.getUsername())
                     .fullName(user.getFullName())
+                    .displayName(user.getDisplayName())
                     .password(user.getPassword())
                     .phone(user.getPhone())
                     .email(user.getEmail())
@@ -281,6 +285,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .phone(u.getPhone())
                 .bgImage(u.getBackgroundImage())
                 .isLocked(lecturer.getIsLocked())
+                .displayName(u.getDisplayName())
                 .username(u.getUsername())
                 .password(u.getPassword())
                 .createdOn(lecturer.getCreatedOn())
@@ -301,6 +306,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .fullName(u.getFullName())
                 .username(u.getUsername())
                 .email(u.getEmail())
+                .displayName(u.getDisplayName())
                 .phone(u.getPhone())
                 .resetPasswordToken(u.getPasswordResetToken())
                 .build();
@@ -319,6 +325,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .fullName(u.getFullName())
                 .phone(u.getPhone())
                 .isLocked(l.getIsLocked())
+                .displayName(u.getDisplayName())
                 .username(u.getUsername())
                 .password(u.getPassword())
                 .createdOn(l.getCreatedOn())
@@ -339,6 +346,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .email(u.getEmail())
                 .password(u.getPassword())
                 .fullName(u.getFullName())
+                .displayName(u.getDisplayName())
                 .username(u.getUsername())
                 .studentId(alumni.getStudentId())
                 .phone(u.getPhone())
@@ -362,6 +370,7 @@ public class UserRepositoryImpl implements UserRepository {
                     .isConfirmed(a.getIsConfirmed())
                     .fullName(user.getFullName())
                     .id(a.getId())
+                    .displayName(user.getDisplayName())
                     .userId(a.getUserId())
                     .phone(user.getPhone())
                     .username(user.getUsername())
@@ -387,6 +396,7 @@ public class UserRepositoryImpl implements UserRepository {
                     .isConfirmed(a.getIsConfirmed())
                     .fullName(user.getFullName())
                     .id(a.getId())
+                    .displayName(user.getDisplayName())
                     .userId(a.getUserId())
                     .phone(user.getPhone())
                     .username(user.getUsername())
@@ -412,6 +422,7 @@ public class UserRepositoryImpl implements UserRepository {
                     .fullName(user.getFullName())
                     .id(a.getId())
                     .userId(a.getUserId())
+                    .displayName(user.getFullName())
                     .phone(user.getPhone())
                     .username(user.getUsername())
                     .password(user.getPassword())
@@ -447,6 +458,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .phone(u.getPhone())
                 .isLocked(lecturer.getIsLocked())
                 .username(u.getUsername())
+                .displayName(u.getDisplayName())
                 .password(u.getPassword())
                 .createdOn(lecturer.getCreatedOn())
                 .userId(u.getId())
@@ -456,23 +468,44 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public List<Object[]> getAllLecturersNotUpdateNewPassword() {
+        Session s = this.factory.getObject().getCurrentSession();
+        String defaultPass = "ou@123";
+        String sql = "Select u.id, u.password from lecturer l\n" +
+                "    INNER JOIN users u ON u.id = l.users_id\n" +
+                "WHERE HOUR(TIMEDIFF(CURRENT_TIMESTAMP, l.created_on)) > 24";
+        Query q = s.createNativeQuery(sql);
+        List<Object[]> users = q.getResultList();
+        List<Object[]> usersUpdate = new ArrayList<>();
+        users.forEach(u -> {
+            if (passwordEncoder.matches(defaultPass, u[1].toString())) {
+                usersUpdate.add(u);
+            }
+        });
+        return usersUpdate;
+    }
+
+    @Override
     public Boolean lockLecturerWithoutChangeDefaultPassword() {
         Session s = this.factory.getObject().getCurrentSession();
-        String defaultPass = passwordEncoder.encode("ou@123");
-        String sql = "UPDATE lecturer l\n" +
-                "INNER JOIN users u ON u.id = l.users_id\n" +
-                "SET l.is_locked = 1\n" +
-                "WHERE HOUR(TIMEDIFF(CURRENT_TIMESTAMP, l.created_on)) > 24\n" +
-                "  AND u.password =:defaultPass";
-        Query q = s.createNativeQuery(sql);
-        q.setParameter("defaultPass", defaultPass);
-        int rowsAffected = q.executeUpdate();
-
-        if (rowsAffected > 0) {
+        List<Object[]> usersUpdate = this.getAllLecturersNotUpdateNewPassword();
+        try {
+            usersUpdate.forEach(u -> {
+                String sql = "UPDATE lecturer l\n" +
+                        "    INNER JOIN users u ON u.id = l.users_id\n" +
+                        "SET l.is_locked = 1\n" +
+                        "WHERE u.id=:userId";
+                Query q = s.createNativeQuery(sql);
+                q.setParameter("userId", u[0]);
+                q.executeUpdate();
+            });
             return true;
-        } else {
+        } catch (Exception e) {
             return false;
         }
+
+
+
     }
 
     @Override
@@ -516,10 +549,6 @@ public class UserRepositoryImpl implements UserRepository {
         Query q = s.createQuery("SELECT a FROM Alumni a WHERE a.id=:alumniId");
         q.setParameter("alumniId", alumni.getId());
         Alumni alumniSaved = (Alumni) q.getSingleResult();
-        if (alumniSaved == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return alumniSaved.getIsConfirmed();
     }
 }

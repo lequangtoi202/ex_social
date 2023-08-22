@@ -13,6 +13,8 @@ public interface SurveyRepository {
 
     Survey findById(Long surveyId);
 
+    Survey findByPostId(Long postId);
+
     List<Survey> getAllSurveys();
 
     List<Survey> getAllSurveysByUserId(Long userId);

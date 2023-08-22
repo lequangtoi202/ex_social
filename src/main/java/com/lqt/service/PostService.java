@@ -16,9 +16,13 @@ public interface PostService {
 
     PostDto lockPost(Long id, Long userId);
 
+    PostDto unlockPost(Long id, Long userId);
+
     PostDto findPostById(Long id);
 
     List<PostDto> findAllPosts();
+
+    List<PostDto> getAllMyPostsAndSharePosts(Long currentUserId, String orderDir);
 
     List<PostDto> findPostsByUserId(Long userId, String orderDir);
 

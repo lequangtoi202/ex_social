@@ -46,6 +46,13 @@ public class PostRepositoryImpl implements com.lqt.repository.PostRepository {
     }
 
     @Override
+    public Post unlockPost(Post post) {
+        Session s = this.factory.getObject().getCurrentSession();
+        s.update(post);
+        return post;
+    }
+
+    @Override
     public Post findPostById(Long id) {
         Session s = this.factory.getObject().getCurrentSession();
         return s.get(Post.class, id);
@@ -75,11 +82,10 @@ public class PostRepositoryImpl implements com.lqt.repository.PostRepository {
     @Override
     public List<Post> findPostsByUserId(Long userId, String direction) {
         Session s = this.factory.getObject().getCurrentSession();
-        String queryString = "FROM Post p WHERE p.userId = :userId ORDER BY ";
+        String queryString = "SELECT p FROM Post p LEFT JOIN Share s ON s.post.id = p.id " +
+                "WHERE p.userId = :userId or s.userId = :userId ORDER BY ";
         if ("asc".equalsIgnoreCase(direction)) {
             queryString += "p.timestamp ASC";
-        } else if ("desc".equalsIgnoreCase(direction)) {
-            queryString += "p.timestamp DESC";
         } else {
             queryString += "p.timestamp DESC";
         }

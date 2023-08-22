@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <div class="pt-5 pb-5 table-responsive">
     <div class="d-flex">
         <select id="userRoleFilter" style="width: 10%" onchange="filterUsers()">

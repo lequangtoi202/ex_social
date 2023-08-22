@@ -16,6 +16,49 @@ function getAllUserByFullName(input) {
 
 }
 
+async function getUsersByName(inputElement) {
+    var searchText = inputElement.value.trim();
+    try {
+        const response = await axios.get(`http://localhost:8081/api/v1/users?name=${searchText}`);
+        var searchResults = response.data;
+
+        var searchResultsDiv = document.getElementById("searchResults");
+        var memberList = document.getElementById("memberList");
+        var groupId = document.getElementById("groupIdInfo").value;
+        memberList.innerHTML = "";
+
+        searchResults.forEach(function (u) {
+            var listItem = document.createElement("li");
+            listItem.textContent = u.fullName;
+            var addButton = document.createElement("button");
+            addButton.className = "btn btn-info";
+            addButton.textContent = "Add";
+            addButton.onclick = function () {
+                addToGroup(u.id, groupId);
+            };
+            listItem.appendChild(addButton);
+            memberList.appendChild(listItem);
+        });
+
+        searchResultsDiv.style.display = "block";
+    } catch (error) {
+        console.log(error.response);
+    }
+}
+
+function addToGroup(userId, groupId) {
+    axios.post(`http://localhost:8081/api/v1/groups/${groupId}/users/${userId}/add`)
+        .then(res => {
+            window.location.href = `http://localhost:8081/admin/groups/${groupId}/members`;
+        })
+        .catch(err => {
+            console.log(err.response)
+            var errorMessage = document.getElementById("error-message");
+            errorMessage.textContent = "An error occurred while adding the user to the group.";
+            errorMessage.style.display = "block";
+        })
+}
+
 function confirmDeleteUser(userId) {
     const confirmation = window.confirm("Are you sure you want to delete this user?");
     if (confirmation) {
@@ -208,10 +251,10 @@ function updateTable(users) {
                     <img src="${user.avatarLink}"/>
                 </td>
                 <td class="action-buttons">
-                    <button class="btn btn-warning" onclick="viewUserDetail(${user.id})">
+                    <button class="btn btn-warning" onclick="viewUserDetail(${user.userId})">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-danger" onclick="confirmDeleteUser(${user.id})">
+                    <button class="btn btn-danger" onclick="confirmDeleteUser(${user.userId})">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                     <button class="btn ${user.isConfirmed ? ' btn-success' : 'btn-primary'}" 
@@ -236,10 +279,10 @@ function updateTable(users) {
                     <img src="${user.avatarLink}"/>
                 </td>
                 <td class="action-buttons">
-                    <button class="btn btn-warning" onclick="viewUserDetail(${user.id})">
+                    <button class="btn btn-warning" onclick="viewUserDetail(${user.userId})">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-danger" onclick="confirmDeleteUser(${user.id})">
+                    <button class="btn btn-danger" onclick="confirmDeleteUser(${user.userId})">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </td>
@@ -344,10 +387,6 @@ function filterRelateSurvey() {
     }
 }
 
-function editSurvey(surveyId) {
-    const url = `http://localhost:8081/admin/surveys/${surveyId}`;
-    window.location.href = url;
-}
 
 function confirmDeleteSurvey(surveyId) {
     const confirmation = window.confirm("Are you sure you want to delete this survey?");
@@ -460,9 +499,12 @@ document.getElementById("sendMailForm").addEventListener("submit", function (eve
         body: document.getElementById('body').value,
         from: document.getElementById('from').value
     };
-    const groupId = document.getElementById('groupId').value;
+    const group = document.getElementById('groupId');
+    let groupId = null;
+    if (group != null)
+        groupId = group.value;
     if (typeof groupId !== "undefined" && groupId !== null) {
-        axios.post(`http://localhost:8081/api/v1/groups/${groupId}/mails`, params)
+        axios.post(`http://localhost:8081/api/v1/groups/${groupId}/mails`, JSON.stringify(params))
             .then(response => {
                 window.location.href = "http://localhost:8081/admin";
             })
@@ -484,3 +526,4 @@ document.getElementById("sendMailForm").addEventListener("submit", function (eve
     }
 
 })
+

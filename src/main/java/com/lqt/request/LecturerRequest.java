@@ -17,6 +17,7 @@ public class LecturerRequest {
     @NotNull
     @NotEmpty
     private String username;
+    private String displayName;
     @NotBlank
     @NotNull
     private String email;

@@ -109,6 +109,11 @@ public class SurveyServiceImpl implements SurveyService {
     }
 
     @Override
+    public SurveyDto getSurveyByPost(Long postId) {
+        return mapper.map(surveyRepository.findByPostId(postId), SurveyDto.class);
+    }
+
+    @Override
     public List<SurveyDto> getAllSurveysByUserId(Long adminId) {
         User user = userRepository.findById(adminId);
         if (user == null) {

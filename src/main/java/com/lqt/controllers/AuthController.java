@@ -1,5 +1,7 @@
 package com.lqt.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lqt.dto.*;
 import com.lqt.pojo.Alumni;
 import com.lqt.pojo.Post;
@@ -11,6 +13,7 @@ import com.lqt.service.UserService;
 import com.lqt.util.Routing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -81,21 +85,41 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    @PostMapping(Routing.ADMIN_REGISTER)
-    public void adminRegister(@RequestBody @Valid UserDto userDto, @RequestPart("avatar")MultipartFile avatar) throws Exception {
-        authService.userRegister(userDto, avatar);
+    @PostMapping(value= Routing.ADMIN_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    public ResponseEntity<UserDto> adminRegister(@RequestParam("userDto") String  userRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            UserDto userDto = objectMapper.readValue(userRequest, UserDto.class);
+            UserDto userDtoResponse = authService.userRegister(userDto, avatar);
+            return new ResponseEntity<>(userDtoResponse, HttpStatus.CREATED);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PostMapping(Routing.ALUMNI_REGISTER)
-    public ResponseEntity<AlumniResponse> alumniRegister(@RequestBody @Valid AlumniRequest alumniRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
-        AlumniResponse alumniResponse = authService.alumniRegister(alumniRequest, avatar);
-        return new ResponseEntity<>(alumniResponse, HttpStatus.CREATED);
+    @PostMapping(value= Routing.ALUMNI_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    public ResponseEntity<AlumniResponse> alumniRegister(@RequestParam("alumni") String alumniRequest, @RequestPart MultipartFile avatar) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            AlumniRequest alumni = objectMapper.readValue(alumniRequest, AlumniRequest.class);
+            AlumniResponse alumniResponse = authService.alumniRegister(alumni, avatar);
+            return new ResponseEntity<>(alumniResponse, HttpStatus.CREATED);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
-    @PostMapping(Routing.LECTURER_REGISTER)
-    public ResponseEntity<LecturerResponse> lecturerRegister(@RequestBody @Valid LecturerRequest lecturerRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
-        LecturerResponse lecturerResponse = authService.lecturerRegister(lecturerRequest, avatar);
-        return new ResponseEntity<>(lecturerResponse, HttpStatus.CREATED);
+    @PostMapping(value=Routing.LECTURER_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    public ResponseEntity<LecturerResponse> lecturerRegister(@RequestParam("lecturer") String lecturerRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            LecturerRequest lecturer = objectMapper.readValue(lecturerRequest, LecturerRequest.class);
+            LecturerResponse lecturerResponse = authService.lecturerRegister(lecturer, avatar);
+            return new ResponseEntity<>(lecturerResponse, HttpStatus.CREATED);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping(Routing.IS_EXIST_EMAIL)

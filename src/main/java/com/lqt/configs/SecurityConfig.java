@@ -1,5 +1,6 @@
 package com.lqt.configs;
 
+import com.lqt.security.EncodingFilter;
 import com.lqt.security.JwtAuthenticationFilter;
 import com.lqt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,19 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -24,12 +34,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan(basePackages = {
         "com.lqt.*"
 })
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class  SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
     private UserService userService;
+    @Autowired
+    private EncodingFilter encodingFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -51,12 +63,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/login",
                         "/admin/login",
                         "/api/v1/auth/login/**",
+                        "/api/v1/posts",
                         "/api/v1/auth/register/**",
+                        "/api/v1/users/forgot-password",
+                        "/api/v1/users/reset-password",
                         "/api/v1/users/exist-username",
                         "/api/v1/users/exist-email",
                         "/")
                 .permitAll()
                 .requestMatchers("/admin/**", "/admin").hasAnyAuthority("SYS_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -65,10 +81,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/admin")
                 .permitAll();
 
+        //http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         http.exceptionHandling()
                 .accessDeniedPage("/access-denied");
 
+        http.addFilterBefore(encodingFilter, ChannelProcessingFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
     }
 
     @Override
@@ -82,5 +102,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.setUserDetailsService(userService);
         auth.setPasswordEncoder(passwordEncoder());
         return auth;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

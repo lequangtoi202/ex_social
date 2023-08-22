@@ -15,6 +15,8 @@ public interface SurveyService {
 
     SurveyDto getSurveyById(Long surveyId);
 
+    SurveyDto getSurveyByPost(Long postId);
+
     List<SurveyDto> getAllSurveysByUserId(Long adminId);
 
     List<SurveyDto> getAllSurveysByDate();

@@ -62,16 +62,6 @@ Software Foundation//DTD Tiles Configuration 3.0//EN"
         <put-attribute name="content"
                        value="/WEB-INF/pages/survey.jsp"/>
     </definition>
-    <definition name="edit-survey" extends="baseLayout">
-        <put-attribute name="title" value="Survey Management"/>
-        <put-attribute name="content"
-                       value="/WEB-INF/pages/edit-survey.jsp"/>
-    </definition>
-    <definition name="add-survey" extends="baseLayout">
-        <put-attribute name="title" value="Survey Management"/>
-        <put-attribute name="content"
-                       value="/WEB-INF/pages/add-survey.jsp"/>
-    </definition>
     <!--    Post-->
     <definition name="post" extends="baseLayout">
         <put-attribute name="title" value="Post Management"/>

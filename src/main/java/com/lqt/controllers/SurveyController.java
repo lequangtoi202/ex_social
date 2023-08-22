@@ -47,6 +47,11 @@ public class SurveyController {
         }
     }
 
+    @GetMapping(Routing.SURVEY_OF_POST)
+    public ResponseEntity<?> getSurveyByPost(@PathVariable("postId") Long postId) {
+        return new ResponseEntity<>(surveyService.getSurveyByPost(postId), HttpStatus.OK);
+    }
+
     @PreAuthorize("hasRole('SYS_ADMIN')")
     @PutMapping(Routing.SURVEY_BY_ID)
     public ResponseEntity<?> updateSurvey(@RequestBody @Valid SurveyDto surveyDto, @PathVariable("surveyId") Long surveyId) {

@@ -50,8 +50,8 @@ public class AdminController {
     @Autowired
     private SurveyService surveyService;
 
-    @GetMapping("/admin/login")
-    public String loginAdmin(Model model, @RequestParam(value = "logout", required = false) String logout, HttpServletResponse response) {
+    @GetMapping(Routing.ADMIN_LOGIN)
+    public String loginAdmin(Model model, @RequestParam(value = "logout", required = false) String logout,@RequestParam(value = "error", required = false) String error, HttpServletResponse response) {
         if (logout != null) {
             Cookie cookie = new Cookie("JWT_TOKEN", null);
             cookie.setMaxAge(0);
@@ -62,11 +62,14 @@ public class AdminController {
             model.addAttribute("success", "Logout successfully!");
             return "login";
         }
+        if (error != null) {
+            model.addAttribute("error", "Username or password is invalid");
+        }
         model.addAttribute("loginDto", new LoginDto());
         return "login";
     }
 
-    @PostMapping("/admin/login")
+    @PostMapping(Routing.ADMIN_LOGIN)
     public String processLoginAdmin(@ModelAttribute("loginDto") LoginDto loginDto,
                                     HttpServletResponse response,
                                     RedirectAttributes attributes) throws Exception {
@@ -100,20 +103,12 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('SYS_ADMIN')")
-    @GetMapping("/admin")
+    @GetMapping(Routing.ADMIN)
     public String index(Model model, @RequestParam(required = false) Map<String, String> params) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             List<StatsUserResponse> userResponses = statisticService.statsUsers();
-            if (params.size() != 0) {
-                model.addAttribute("statsPostResponse", statisticService.statsNumberOfPosts(params));
-            }else {
-                Map<String, String> newParams = Map.ofEntries(
-                        Map.entry("year", ""),
-                        Map.entry("month", "")
-                );
-                model.addAttribute("statsPostResponse", statisticService.statsNumberOfPosts(newParams));
-            }
+            model.addAttribute("statsPostResponse", statisticService.statsNumberOfPosts(params));
             model.addAttribute("userResponses", userResponses);
             model.addAttribute("totalUsers", statisticService.countAllUsers());
             model.addAttribute("totalAlumni", userDetailServiceImpl.getAllAlumni().size());
@@ -125,7 +120,7 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/admin/users")
+    @GetMapping(Routing.ADMIN_USERS)
     public String getAllUsers(Model model, @RequestParam(value = "page", defaultValue = "1") int page) {
         List<UserDto> userDtos = userDetailServiceImpl.getAllUsers();
         int totalRecords = userDtos.size();
@@ -140,7 +135,7 @@ public class AdminController {
         return "user";
     }
 
-    @GetMapping("/admin/groups")
+    @GetMapping(Routing.ADMIN_GROUPS)
     public String getAllGroups(Model model,
                                @RequestParam(value = "name", required = false, defaultValue = "") String name,
                                @RequestParam(value = "page", required = false, defaultValue = "1")int page) {
@@ -166,14 +161,14 @@ public class AdminController {
         return "group";
     }
 
-    @GetMapping("/admin/groups/add")
+    @GetMapping(Routing.ADMIN_GROUPS_ADD)
     public String addNewGroup(Model model) {
         model.addAttribute("group", new Group());
         return "add-group";
     }
 
 
-    @GetMapping("/admin/groups/{groupId}")
+    @GetMapping(Routing.ADMIN_GROUPS_BY_ID)
     public String editGroup(@PathVariable("groupId") Long groupId, Model model) {
         Group group = groupService.findById(groupId);
         model.addAttribute("group", group);
@@ -181,7 +176,7 @@ public class AdminController {
         return "edit-group";
     }
 
-    @PostMapping("/admin/groups/{groupId}")
+    @PostMapping(Routing.ADMIN_GROUPS_BY_ID)
     public String executeEditGroup(@PathVariable("groupId") Long groupId, @ModelAttribute("group") Group group, RedirectAttributes attributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -200,7 +195,7 @@ public class AdminController {
     }
 
 
-    @GetMapping("/admin/groups/{groupId}/members")
+    @GetMapping(Routing.ADMIN_GROUPS_MEMBERS)
     public String getUsersOfGroup(@PathVariable("groupId") Long groupId,
                                   Model model,
                                   @RequestParam(value = "page", required = false, defaultValue = "1")int page) {
@@ -218,7 +213,7 @@ public class AdminController {
         return "group-user";
     }
 
-    @PostMapping("/admin/groups")
+    @PostMapping(Routing.ADMIN_GROUPS)
     public String executeAddNewGroup(RedirectAttributes attributes, @ModelAttribute("group") Group group) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -236,7 +231,7 @@ public class AdminController {
         return "redirect:/admin/groups";
     }
 
-    @GetMapping("/admin/posts")
+    @GetMapping(Routing.ADMIN_POSTS)
     public String getAllPosts(Model model, @RequestParam(value = "page", defaultValue = "1") int page) {
         List<PostDto> postDtos = postService.getAllPosts();
         int totalRecords = postDtos.size();
@@ -263,14 +258,14 @@ public class AdminController {
     }
 
 
-    @GetMapping("/admin/users/{userId}")
+    @GetMapping(Routing.ADMIN_USERS_BY_ID)
     public String getUserById(@PathVariable("userId") Long userId, Model model) {
         UserDto userDto = userDetailServiceImpl.findUserById(userId);
         model.addAttribute("user", userDto);
         return "user-detail";
     }
 
-    @GetMapping("/admin/users/alumni")
+    @GetMapping(Routing.ADMIN_USERS_ALUMNI)
     public String getAllAlumniIsNotConfirmed(Model model) {
         List<AlumniResponse> alumniResponses = userDetailServiceImpl.getAllAlumniIsNotConfirmed();
         model.addAttribute("alumniList", alumniResponses);
@@ -278,7 +273,7 @@ public class AdminController {
     }
 
     //    SURVEY
-    @GetMapping("/admin/surveys")
+    @GetMapping(Routing.ADMIN_SURVEYS)
     public String getAllSurveys(Model model, @RequestParam(value = "page", defaultValue = "1") int page) {
         List<SurveyDto> surveyDtos = surveyService.getAllSurveys();
         int totalRecords = surveyDtos.size();
@@ -293,38 +288,7 @@ public class AdminController {
         return "survey";
     }
 
-    @GetMapping("/admin/surveys/add")
-    public String addNewSurvey(Model model) {
-        model.addAttribute("survey", new SurveyDto());
-        model.addAttribute("surveyType", SurveyType.values());
-        return "add-survey";
-    }
-
-    @PostMapping("/admin/surveys")
-    public String executeAddNewSurvey(RedirectAttributes attributes, @ModelAttribute("survey") SurveyDto surveyDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            User currentUser = userDetailServiceImpl.getMyAccount(userDetails.getUsername());
-            PostDto postDto1 = PostDto.builder()
-                    .content("Survey")
-                    .isLocked(false)
-                    .isSurvey(true)
-                    .build();
-            PostDto postDto = postService.post(postDto1, currentUser.getId());
-            SurveyDto surveyDtoSaved = surveyService.create(surveyDto, currentUser.getId(), postDto.getId());
-            if (surveyDtoSaved != null) {
-                attributes.addFlashAttribute("success", "Create survey successfully!");
-            } else {
-                attributes.addFlashAttribute("error", "Create survey failed! Please try later.");
-            }
-            return "redirect:/admin/surveys";
-        }
-        attributes.addFlashAttribute("error", "Create group failed! Please try later.");
-        return "redirect:/admin/surveys";
-    }
-
-    @GetMapping("/admin/surveys/{surveyId}")
+    @GetMapping(Routing.ADMIN_SURVEYS_BY_ID)
     public String editSurvey(@PathVariable("surveyId") Long surveyId, Model model) {
         SurveyDto surveyDto = surveyService.getSurveyById(surveyId);
         model.addAttribute("survey", surveyDto);
@@ -333,7 +297,7 @@ public class AdminController {
         return "edit-survey";
     }
 
-    @PostMapping("/admin/surveys/{surveyId}")
+    @PostMapping(Routing.ADMIN_SURVEYS_BY_ID)
     public String executeEditSurvey(@PathVariable("surveyId") Long surveyId, @ModelAttribute("survey") SurveyDto surveyDto, RedirectAttributes attributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -352,12 +316,12 @@ public class AdminController {
     }
 
 //    Notification
-    @GetMapping("/admin/send-notification")
+    @GetMapping(Routing.ADMIN_SEND_NOTIFICATION_ALL)
     public String sendNotificationToAllAlumniView() {
         return "send-notification";
     }
 
-    @GetMapping("/admin/groups/{groupId}/send-notification")
+    @GetMapping(Routing.ADMIN_SEND_NOTIFICATION_IN_GROUP)
     public String sendNotificationToAllAlumniInGroupView(Model model, @PathVariable("groupId") Long groupId) {
         model.addAttribute("groupId", groupId);
         return "send-notification";

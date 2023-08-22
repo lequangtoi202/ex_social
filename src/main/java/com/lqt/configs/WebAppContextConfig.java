@@ -111,7 +111,7 @@ public class WebAppContextConfig implements WebMvcConfigurer, AsyncConfigurer {
     @Bean
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setMaxUploadSize(5242880); // Cấu hình kích thước tối đa cho file upload (ở đây là 5MB)
+        resolver.setMaxUploadSize(5242880);
         return resolver;
     }
 
@@ -136,6 +136,5 @@ public class WebAppContextConfig implements WebMvcConfigurer, AsyncConfigurer {
         registry.addInterceptor(new TokenInterceptor())
                 .addPathPatterns("/**");
     }
-
 
 }

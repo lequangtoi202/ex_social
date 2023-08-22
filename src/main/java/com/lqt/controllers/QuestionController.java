@@ -34,7 +34,7 @@ public class QuestionController {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             User currentUser = userService.getMyAccount(userDetails.getUsername());
             List<Question> questions = questionService.getAllQuestionsBySurveyId(surveyId, currentUser.getId());
-            return new ResponseEntity<>(questions == null ? new ResponseEntity<>("You do not have permission to access questions", HttpStatus.UNAUTHORIZED) : questions, HttpStatus.OK);
+            return new ResponseEntity<>(questions, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

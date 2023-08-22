@@ -3,9 +3,13 @@ package com.lqt.security;
 
 import com.lqt.dto.JwtResponse;
 import com.lqt.exception.SocialApiException;
+import com.lqt.pojo.User;
+import com.lqt.repository.UserRepository;
+import com.lqt.service.UserService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
@@ -22,7 +26,8 @@ import java.util.Date;
         @PropertySource("classpath:configs.properties")
 })
 public class JwtTokenProvider implements Serializable {
-
+    @Autowired
+    private UserRepository userRepository;
     @Value("${app.jwt-secret}")
     private String JwtSecret;
 
@@ -34,12 +39,15 @@ public class JwtTokenProvider implements Serializable {
     // generate JWT token
     public JwtResponse generateToken(UserDetails userDetails) {
         String username = userDetails.getUsername();
+        User user = userRepository.findByUsername(username);
         Date currentDate = new Date();
 
         Date expireDate = new Date(currentDate.getTime() + JwtExpirationDate);
 
         String accessToken = Jwts.builder()
                 .setSubject(username)
+                .claim("email", user.getEmail())
+                .claim("full_name", user.getFullName())
                 .setIssuedAt(new Date())
                 .setExpiration(expireDate)
                 .signWith(key())
@@ -47,6 +55,8 @@ public class JwtTokenProvider implements Serializable {
 
         String refreshToken = Jwts.builder()
                 .setSubject(username)
+                .claim("email", user.getEmail())
+                .claim("full_name", user.getFullName())
                 .setIssuedAt(currentDate)
                 .setExpiration(new Date(currentDate.getTime() + REFRESH_TOKEN_EXPIRATION_DATE))
                 .signWith(key())
@@ -115,8 +125,11 @@ public class JwtTokenProvider implements Serializable {
         if (validateToken(refreshToken)) {
             try {
                 String username = getUsername(refreshToken);
+                User user = userRepository.findByUsername(username);
                 String accessToken = Jwts.builder()
                         .setSubject(username)
+                        .claim("email", user.getEmail())
+                        .claim("full_name", user.getFullName())
                         .setIssuedAt(new Date())
                         .setExpiration(expireDate)
                         .signWith(key())

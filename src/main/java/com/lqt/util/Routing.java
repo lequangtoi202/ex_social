@@ -13,6 +13,8 @@ public final class Routing {
     public static final String IS_EXIST_USERNAME = BASE_URL + "/users/exist-username";
     public static final String ALUMNI = BASE_URL + "/alumni";
     public static final String USERS = BASE_URL + "/users";
+    public static final String USER_BY_EMAIL = BASE_URL + "/users/byEmail";
+    public static final String USER_BY_USERNAME = BASE_URL + "/users/byUsername";
     public static final String LECTURER = BASE_URL + "/lecturers";
     public static final String UPLOAD_BG_IMG = BASE_URL + "/users/upload";
     public static final String MY_ACCOUNT = BASE_URL + "/users/me";
@@ -28,14 +30,18 @@ public final class Routing {
     public static final String COMMENT_BY_POST_AND_ID = BASE_URL + "/posts/{postId}/comments/{id}";
     public static final String COMMENT_BY_COMMENT_ID = BASE_URL + "/posts/{postId}/comments/{id}/comments";
     public static final String COMMENT_BY_POST_ID = BASE_URL + "/posts/{postId}/comments";
+    public static final String MY_POST = BASE_URL + "/me/posts";
     public static final String POST = BASE_URL + "/posts";
     public static final String POST_BY_ID = BASE_URL + "/posts/{id}";
+    public static final String POST_INTERACTION_BY_USER = BASE_URL + "/posts/users/interaction";
     public static final String POST_BY_USER_ID = BASE_URL + "/users/{userId}/posts";
     public static final String LOCK_POST = BASE_URL + "/posts/{id}/lock";
+    public static final String UNLOCK_POST = BASE_URL + "/posts/{id}/unlock";
     public static final String SHARE_POST = BASE_URL + "/posts/{id}/share";
     public static final String GROUP = BASE_URL + "/groups";
     public static final String GROUP_BY_ID = BASE_URL + "/groups/{id}";
     public static final String GROUP_BY_USER_ID = BASE_URL + "/groups/users/{userId}";
+    public static final String GROUP_OF_USER = BASE_URL + "/groups/users/me";
     public static final String ADD_TO_GROUP = BASE_URL + "/groups/{id}/users/{userId}/add";
     public static final String DELETE_TO_GROUP = BASE_URL + "/groups/{id}/users/{userId}/delete";
     public static final String MAIL_BY_GROUP_ID = BASE_URL + "/groups/{id}/mails";
@@ -43,6 +49,7 @@ public final class Routing {
     public static final String INTERACT = BASE_URL + "/interact/{postId}";
     public static final String QUESTION_BY_SURVEY = BASE_URL + "/surveys/{surveyId}/questions";
     public static final String QUESTION_BY_ID = BASE_URL + "/questions/{id}";
+    public static final String OPTIONS_BY_QUESTION_ID = BASE_URL + "/questions/{id}/options";
     public static final String SURVEY = BASE_URL + "/surveys";
     public static final String SURVEY_OF_POST = BASE_URL + "/posts/{postId}/surveys";
     public static final String SURVEY_BY_ID = BASE_URL + "/surveys/{surveyId}";
@@ -50,9 +57,30 @@ public final class Routing {
     public static final String RESPONSE = BASE_URL + "/survey/{surveyId}/responses";
     public static final String RESPONSE_BY_SURVEY_AND_QUESTION_ID = BASE_URL + "/survey/{surveyId}/questions/{questionId}/responses";
     public static final String RESPONSE_BY_SURVEY_AND_QUESTION_ID_AND_ID = BASE_URL + "/survey/{surveyId}/questions/{questionId}/responses/{resId}";
+
     /*STATISTIC*/
     public static final String COUNT_USER_OF_GROUP = BASE_URL + "/groups/{groupId}/users/count";
     public static final String COUNT_USER_OF_SYSTEM = BASE_URL + "/users/count";
     public static final String STATS_USER_OF_SYSTEM = BASE_URL + "/stats/users";
     public static final String COUNT_POST_OF_SYSTEM = BASE_URL + "/posts/count";
+    public static final String COUNT_REACT_OF_POST = BASE_URL + "/posts/{postId}/count-react";
+    public static final String COUNT_COMMENT_OF_POST = BASE_URL + "/posts/{postId}/count-comment";
+    public static final String COUNT_SHARE_OF_POST = BASE_URL + "/posts/{postId}/count-share";
+
+    /*ADMIN*/
+    public static final String ADMIN_LOGIN = "/admin/login";
+    public static final String ADMIN = "/admin";
+    public static final String ADMIN_USERS = "/admin/users";
+    public static final String ADMIN_USERS_BY_ID = "/admin/users/{userId}";
+    public static final String ADMIN_USERS_ALUMNI = "/admin/users/alumni";
+    public static final String ADMIN_GROUPS = "/admin/groups";
+    public static final String ADMIN_POSTS = "/admin/posts";
+    public static final String ADMIN_SURVEYS = "/admin/surveys";
+    public static final String ADMIN_SURVEYS_BY_ID = "/admin/surveys/{surveyId}";
+    public static final String ADMIN_SURVEYS_ADD = "/admin/surveys/add";
+    public static final String ADMIN_GROUPS_ADD = "/admin/groups/add";
+    public static final String ADMIN_GROUPS_BY_ID = "/admin/groups/{groupId}";
+    public static final String ADMIN_GROUPS_MEMBERS = "/admin/groups/{groupId}/members";
+    public static final String ADMIN_SEND_NOTIFICATION_ALL = "/admin/send-notification";
+    public static final String ADMIN_SEND_NOTIFICATION_IN_GROUP = "/admin/groups/{groupId}/send-notification";
 }

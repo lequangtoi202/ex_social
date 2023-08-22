@@ -1,5 +1,6 @@
 package com.lqt.service.impl;
 
+import com.lqt.dto.PostReaction;
 import com.lqt.exception.ResourceNotFoundException;
 import com.lqt.pojo.Interaction;
 import com.lqt.pojo.Post;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class InteractionServiceImpl implements InteractionService {
@@ -43,4 +45,11 @@ public class InteractionServiceImpl implements InteractionService {
                 .build();
         return interactionRepository.interactWithPost(interaction);
     }
+
+    @Override
+    public List<PostReaction> getAllPostReactionOfUser(Long userId) {
+        return interactionRepository.getPostReactionOfUser(userId);
+    }
+
+
 }

@@ -15,6 +15,7 @@ public class LecturerResponse {
     private Long id;
     private String username;
     private String password;
+    private String displayName;
     private String email;
     private String fullName;
     private String phone;

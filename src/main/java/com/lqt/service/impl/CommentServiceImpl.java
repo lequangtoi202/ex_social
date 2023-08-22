@@ -40,16 +40,27 @@ public class CommentServiceImpl implements CommentService {
         if (belongsCommentId != null){
              commentParent = commentRepository.findCommentById(belongsCommentId);
         }
-        Comment comment = Comment.builder()
-                .content(commentDto.getContent())
-                .timestamp(Timestamp.valueOf(LocalDateTime.now()))
-                .postId(post.getId())
-                .userId(userId)
-                .belongsComment(belongsCommentId == null ? null : commentParent)
-                .build();
+        Comment comment;
+        if (commentParent == null) {
+             comment = Comment.builder()
+                    .content(commentDto.getContent())
+                    .timestamp(Timestamp.valueOf(LocalDateTime.now()))
+                    .postId(post.getId())
+                    .userId(userId)
+                    .build();
+        }else {
+            comment = Comment.builder()
+                    .content(commentDto.getContent())
+                    .timestamp(Timestamp.valueOf(LocalDateTime.now()))
+                    .postId(post.getId())
+                    .belongsComment(commentParent)
+                    .userId(userId)
+                    .build();
+        }
         Comment cmtResult = commentRepository.save(comment);
+
         CommentDto commentDto1 = CommentDto.builder()
-                .belongsComment(cmtResult.getBelongsComment().getId())
+                .belongsComment(cmtResult.getBelongsComment() != null ? cmtResult.getBelongsComment().getId() : null)
                 .timestamp(cmtResult.getTimestamp())
                 .postId(cmtResult.getPostId())
                 .userId(cmtResult.getUserId())
