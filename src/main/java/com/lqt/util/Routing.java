@@ -13,6 +13,7 @@ public final class Routing {
     public static final String IS_EXIST_USERNAME = BASE_URL + "/users/exist-username";
     public static final String ALUMNI = BASE_URL + "/alumni";
     public static final String USERS = BASE_URL + "/users";
+    public static final String SEND_MAIL_ACCOUNT_TO_LECTURER = BASE_URL + "/users/lecturer/provide-account";
     public static final String USER_BY_EMAIL = BASE_URL + "/users/byEmail";
     public static final String USER_BY_USERNAME = BASE_URL + "/users/byUsername";
     public static final String LECTURER = BASE_URL + "/lecturers";

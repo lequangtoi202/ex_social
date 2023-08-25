@@ -72,4 +72,6 @@ public interface UserRepository {
 
     Boolean checkAlumniIsConfirmed(Alumni alumni);
 
+    Boolean checkLecturerIsLocked(Lecturer lecturer);
+
 }

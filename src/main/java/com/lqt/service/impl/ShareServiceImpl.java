@@ -26,11 +26,11 @@ public class ShareServiceImpl implements ShareService {
     @Override
     public Share sharePost(Long postId, Long userId) {
         User u = userRepository.findById(userId);
-        if (u == null){
+        if (u == null) {
             throw new ResourceNotFoundException("User", "id", userId);
         }
         Post post = postRepository.findPostById(postId);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", postId);
         }
         Share share = Share.builder()

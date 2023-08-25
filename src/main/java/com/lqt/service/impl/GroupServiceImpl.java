@@ -29,15 +29,15 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Group create(Group group, Long userId) {
         User user = userRepository.findById(userId);
-        if (user == null){
+        if (user == null) {
             throw new ResourceNotFoundException("User", "id", userId);
         }
         group.setCreatorId(userId);
         List<Role> roles = userService.getAllRoleOfUser(userId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return groupRepository.create(group);
-        }else{
+        } else {
             return null;
         }
     }
@@ -45,15 +45,15 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Group update(Group groupUpdate, Long id, Long userId) {
         Group group = groupRepository.findById(id);
-        if (group == null){
+        if (group == null) {
             throw new ResourceNotFoundException("Group", "id", id);
         }
         group.setGroupName(groupUpdate.getGroupName());
         List<Role> roles = userService.getAllRoleOfUser(userId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return groupRepository.update(group);
-        }else{
+        } else {
             return null;
         }
 
@@ -62,14 +62,14 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Boolean delete(Long groupId, Long userId) {
         Group group = groupRepository.findById(groupId);
-        if (group == null){
+        if (group == null) {
             throw new ResourceNotFoundException("Group", "id", groupId);
         }
         List<Role> roles = userService.getAllRoleOfUser(userId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return groupRepository.delete(group);
-        }else{
+        } else {
             return false;
         }
     }
@@ -97,11 +97,11 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Boolean addMemberToGroup(Long userId, Long groupId, Long adminId) {
         Group group = groupRepository.findById(groupId);
-        if (group == null){
+        if (group == null) {
             throw new ResourceNotFoundException("Group", "id", groupId);
         }
         User user = userRepository.findById(userId);
-        if (user == null){
+        if (user == null) {
             throw new ResourceNotFoundException("User", "id", userId);
         }
         GroupsMembers groupsMembers = GroupsMembers.builder()
@@ -110,9 +110,9 @@ public class GroupServiceImpl implements GroupService {
                 .build();
         List<Role> roles = userService.getAllRoleOfUser(adminId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return groupRepository.addMemberToGroup(groupsMembers);
-        }else{
+        } else {
             return false;
         }
     }
@@ -120,14 +120,14 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Boolean deleteMemberFromGroup(Long userId, Long groupId, Long adminId) {
         GroupsMembers groupsMembers = groupRepository.findMemberInGroupByUserIdAndGroupId(userId, groupId);
-        if (groupsMembers == null){
-            throw new RuntimeException("Can not find any GroupsMembers with user_id and group_id "+ userId + " " + groupId);
+        if (groupsMembers == null) {
+            throw new RuntimeException("Can not find any GroupsMembers with user_id and group_id " + userId + " " + groupId);
         }
         List<Role> roles = userService.getAllRoleOfUser(adminId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return groupRepository.deleteMemberFromGroup(groupsMembers);
-        }else{
+        } else {
             return false;
         }
     }
@@ -152,16 +152,16 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.getAllUsersOfGroup(groupId)
                 .stream()
                 .map(u -> UserDto.builder()
-                    .username(u.getUsername())
-                    .backgroundImage(u.getBackgroundImage())
-                    .id(u.getId())
-                    .phone(u.getPhone())
-                    .password(u.getPassword())
-                    .fullName(u.getFullName())
-                    .email(u.getEmail())
-                    .resetPasswordToken(u.getPasswordResetToken())
-                    .avatarLink(u.getAvatar())
-                    .build())
+                        .username(u.getUsername())
+                        .backgroundImage(u.getBackgroundImage())
+                        .id(u.getId())
+                        .phone(u.getPhone())
+                        .password(u.getPassword())
+                        .fullName(u.getFullName())
+                        .email(u.getEmail())
+                        .resetPasswordToken(u.getPasswordResetToken())
+                        .avatarLink(u.getAvatar())
+                        .build())
                 .collect(Collectors.toList());
     }
 }

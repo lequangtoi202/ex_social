@@ -4,6 +4,7 @@ import com.lqt.dto.AlumniResponse;
 import com.lqt.dto.LecturerResponse;
 import com.lqt.dto.UserDto;
 import com.lqt.pojo.Alumni;
+import com.lqt.pojo.Lecturer;
 import com.lqt.pojo.Role;
 import com.lqt.pojo.User;
 import com.lqt.request.AlumniRequest;
@@ -32,6 +33,8 @@ public interface UserService extends UserDetailsService {
 
     Alumni findAlumniByUserId(Long userId);
 
+    Lecturer findLecturerByUserId(Long userId);
+
     User findByUsername(String username);
 
     Boolean existsByUsername(String username);
@@ -43,6 +46,8 @@ public interface UserService extends UserDetailsService {
     UserDto findByResetPasswordToken(String token);
 
     void updateResetPassword(String token, String email);
+
+    void sendMailAccountToLecturer(String email, String username);
 
     Boolean assignRoleToUser(Role role, Long id);
 
@@ -63,6 +68,8 @@ public interface UserService extends UserDetailsService {
     Boolean confirmAlumni(Long alumniId);
 
     Boolean checkAlumniIsConfirmed(Alumni alumni);
+
+    Boolean checkLecturerIsLocked(Lecturer lecturer);
 
     void uploadBgImage(MultipartFile bgImage, User user);
 

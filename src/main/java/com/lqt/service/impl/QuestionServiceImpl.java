@@ -26,7 +26,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public Question createQuestionForSurvey(Long surveyId, Question q, List<Option> options, Long adminId) {
         Survey survey = surveyRepository.findById(surveyId);
-        if (survey == null){
+        if (survey == null) {
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
         Question question = Question.builder()
@@ -35,9 +35,9 @@ public class QuestionServiceImpl implements QuestionService {
                 .build();
         List<Role> roles = userService.getAllRoleOfUser(adminId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return questionRepository.createQuestionForSurvey(question, options);
-        }else{
+        } else {
             return null;
         }
     }
@@ -45,15 +45,15 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public Question updateQuestionForSurvey(Question q, Long questionId, Long adminId) {
         Question question = questionRepository.getQuestionById(questionId);
-        if (question == null){
+        if (question == null) {
             throw new ResourceNotFoundException("Question", "id", questionId);
         }
         question.setContent(q.getContent());
         List<Role> roles = userService.getAllRoleOfUser(adminId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return questionRepository.updateQuestionForSurvey(question);
-        }else{
+        } else {
             return null;
         }
     }
@@ -61,14 +61,14 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public Boolean deleteQuestionForSurvey(Long questionId, Long adminId) {
         Question question = questionRepository.getQuestionById(questionId);
-        if (question == null){
+        if (question == null) {
             throw new ResourceNotFoundException("Question", "id", questionId);
         }
         List<Role> roles = userService.getAllRoleOfUser(adminId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return questionRepository.deleteQuestionForSurvey(question);
-        }else{
+        } else {
             return null;
         }
     }
@@ -81,7 +81,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public List<Question> getAllQuestionsBySurveyId(Long surveyId, Long adminId) {
         Survey survey = surveyRepository.findById(surveyId);
-        if (survey == null){
+        if (survey == null) {
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
         return questionRepository.getAllQuestionBySurveyId(surveyId);
@@ -90,14 +90,14 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public Question getQuestionById(Long questionId, Long adminId) {
         Question question = questionRepository.getQuestionById(questionId);
-        if (question == null){
+        if (question == null) {
             throw new ResourceNotFoundException("Question", "id", questionId);
         }
         List<Role> roles = userService.getAllRoleOfUser(adminId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole){
+        if (hasAdminRole) {
             return questionRepository.getQuestionById(questionId);
-        }else{
+        } else {
             return null;
         }
     }

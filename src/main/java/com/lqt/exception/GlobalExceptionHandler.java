@@ -35,7 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 
     @ExceptionHandler(SocialApiException.class)
-    public ResponseEntity<ErrorDetails> handleFlowerApiException(SocialApiException exception,
+    public ResponseEntity<ErrorDetails> handleSocialApiException(SocialApiException exception,
                                                                  WebRequest webRequest){
         ErrorDetails errorDetails = new ErrorDetails(new Date(), exception.getMessage(),
                 webRequest.getDescription(false));

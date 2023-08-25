@@ -1,7 +1,6 @@
 package com.lqt.controllers;
 
 import com.lqt.service.StatisticService;
-import com.lqt.service.UserService;
 import com.lqt.util.Routing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,6 @@
 package com.lqt.service.impl;
 
 import com.lqt.dto.PostDto;
-import com.lqt.dto.UserDto;
 import com.lqt.exception.ResourceNotFoundException;
 import com.lqt.pojo.Post;
 import com.lqt.pojo.Role;
@@ -31,7 +30,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto post(PostDto postDto, Long userId) {
         Post post = Post.builder()
-                .isLocked(postDto == null ?     true : false)
+                .isLocked(postDto == null ? true : false)
                 .userId(userId)
                 .content(postDto.getContent())
                 .isSurvey(postDto.getIsSurvey())
@@ -43,15 +42,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto update(PostDto postDto, Long postId, Long userId) {
         Post post = postRepository.findPostById(postId);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", postId);
         }
         post.setIsLocked(postDto.getIsLocked());
         post.setContent(postDto.getContent());
         post.setIsSurvey(postDto.getIsSurvey());
-        if (post.getUserId() == userId){
+        if (post.getUserId() == userId) {
             return mapper.map(postRepository.update(post), PostDto.class);
-        }else{
+        } else {
             return null;
         }
     }
@@ -59,15 +58,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public Boolean delete(Long id, User u) {
         Post post = postRepository.findPostById(id);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", id);
         }
         List<Role> roles = userService.getAllRoleOfUser(u.getId());
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole || post.getUserId() == u.getId()){
+        if (hasAdminRole || post.getUserId() == u.getId()) {
             postRepository.delete(post);
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -75,15 +74,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto lockPost(Long id, Long userId) {
         Post post = postRepository.findPostById(id);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", id);
         }
         post.setIsLocked(true);
         List<Role> roles = userService.getAllRoleOfUser(userId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole || post.getUserId() == userId){
+        if (hasAdminRole || post.getUserId() == userId) {
             return mapper.map(postRepository.lockPost(post), PostDto.class);
-        }else{
+        } else {
             return null;
         }
     }
@@ -91,15 +90,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto unlockPost(Long id, Long userId) {
         Post post = postRepository.findPostById(id);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", id);
         }
         post.setIsLocked(false);
         List<Role> roles = userService.getAllRoleOfUser(userId);
         Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
-        if (hasAdminRole || post.getUserId() == userId){
+        if (hasAdminRole || post.getUserId() == userId) {
             return mapper.map(postRepository.unlockPost(post), PostDto.class);
-        }else{
+        } else {
             return null;
         }
     }
@@ -120,7 +119,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> getAllMyPostsAndSharePosts(Long currentUserId, String orderDir) {
-        String direction  = orderDir != null ? orderDir.toLowerCase() : "asc";
+        String direction = orderDir != null ? orderDir.toLowerCase() : "asc";
         List<Post> posts = postRepository.findPostsByUserId(currentUserId, direction);
         List<PostDto> postDtos = new ArrayList<>();
         posts.forEach(p -> {
@@ -139,7 +138,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> findPostsByUserId(Long userId, String orderDir) {
-        String direction  = orderDir != null ? orderDir.toLowerCase() : "asc";
+        String direction = orderDir != null ? orderDir.toLowerCase() : "asc";
         List<Post> posts = postRepository.findPostsByUserId(userId, direction);
         return posts.stream()
                 .map(p -> mapper.map(p, PostDto.class))

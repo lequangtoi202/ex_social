@@ -2,9 +2,7 @@ package com.lqt.service.impl;
 
 import com.lqt.dto.PostStatsResponse;
 import com.lqt.dto.StatsUserResponse;
-import com.lqt.pojo.*;
-import com.lqt.repository.*;
-import com.lqt.service.PostService;
+import com.lqt.repository.StatisticRepository;
 import com.lqt.service.StatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

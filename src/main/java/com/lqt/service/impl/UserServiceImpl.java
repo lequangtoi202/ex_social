@@ -2,7 +2,6 @@ package com.lqt.service.impl;
 
 import com.lqt.dto.AlumniResponse;
 import com.lqt.dto.LecturerResponse;
-import com.lqt.dto.SurveyDto;
 import com.lqt.dto.UserDto;
 import com.lqt.exception.ResourceNotFoundException;
 import com.lqt.pojo.Alumni;
@@ -12,8 +11,11 @@ import com.lqt.pojo.User;
 import com.lqt.repository.UserRepository;
 import com.lqt.request.AlumniRequest;
 import com.lqt.request.LecturerRequest;
+import com.lqt.request.MailRequest;
 import com.lqt.service.ImageService;
+import com.lqt.service.MailService;
 import com.lqt.service.UserService;
+import com.lqt.util.HTMLConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,11 +27,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.lqt.util.Constants.YYYY_MM_DD;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -37,6 +44,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private MailService mailService;
     @Autowired
     private ModelMapper mapper;
     @Autowired
@@ -207,6 +216,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Lecturer findLecturerByUserId(Long userId) {
+        return userRepository.findLecturerByUserId(userId);
+    }
+
+    @Override
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
@@ -243,10 +257,37 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void sendMailAccountToLecturer(String email, String username) {
+        String html = "Username: " + username + " hoặc " + email + "\n";
+        html += "Password: ou@123. Vui lòng thay đổi mật khẩu trong vòng 24h.";
+        String body = HTMLConverter.convertToHTML(html);
+        MailRequest mailRequest = MailRequest.builder()
+                .from("2051052140toi@ou.edu.vn")
+                .subject("Cấp tài khoản giảng viên")
+                .body(body)
+                .recipients(email)
+                .date(LocalDate.now().format(DateTimeFormatter.ofPattern(YYYY_MM_DD)))
+                .build();
+        mailService.sendMailAccountToLecturer(mailRequest);
+    }
+
+    @Override
     public Boolean assignRoleToUser(Role role, Long id) {
         User u = userRepository.findById(id);
         if (u == null) {
             throw new ResourceNotFoundException("User", "id", id);
+        }
+        List<Role> roles = this.getAllRoleOfUser(u.getId());
+        boolean hasSysAdminRole = false;
+
+        for (Role r : roles) {
+            if (r.getName().equals("SYS_ADMIN")) {
+                hasSysAdminRole = true;
+                break;
+            }
+        }
+        if (hasSysAdminRole) {
+            throw new RuntimeException("User này đã là admin");
         }
         return userRepository.assignRoleToUser(role, u);
     }
@@ -359,6 +400,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean checkAlumniIsConfirmed(Alumni alumni) {
         return userRepository.checkAlumniIsConfirmed(alumni);
+    }
+
+    @Override
+    public Boolean checkLecturerIsLocked(Lecturer lecturer) {
+        return userRepository.checkLecturerIsLocked(lecturer);
     }
 
     @Override

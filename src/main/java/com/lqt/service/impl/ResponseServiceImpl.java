@@ -26,7 +26,7 @@ public class ResponseServiceImpl implements ResponseService {
     @Override
     public List<Response> getAllResponsesBySurveyId(Long surveyId) {
         Survey survey = surveyRepository.findById(surveyId);
-        if (survey == null){
+        if (survey == null) {
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
         return responseRepository.getAllResponsesBySurveyId(surveyId);
@@ -35,11 +35,11 @@ public class ResponseServiceImpl implements ResponseService {
     @Override
     public List<Response> getAllResponsesBySurveyAndQuestionId(Long surveyId, Long questionId) {
         Survey survey = surveyRepository.findById(surveyId);
-        if (survey == null){
+        if (survey == null) {
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
         Question question = questionRepository.getQuestionById(questionId);
-        if (question == null){
+        if (question == null) {
             throw new ResourceNotFoundException("Question", "id", questionId);
         }
         return responseRepository.getAllResponsesBySurveyAndQuestionId(surveyId, questionId);
@@ -48,15 +48,15 @@ public class ResponseServiceImpl implements ResponseService {
     @Override
     public Response getResponseBySurveyAndQuestionIdAndByResId(Long surveyId, Long questionId, Long resId) {
         Survey survey = surveyRepository.findById(surveyId);
-        if (survey == null){
+        if (survey == null) {
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
         Question question = questionRepository.getQuestionById(questionId);
-        if (question == null){
+        if (question == null) {
             throw new ResourceNotFoundException("Question", "id", questionId);
         }
         Response response = responseRepository.getByResponseId(resId);
-        if (response == null){
+        if (response == null) {
             throw new ResourceNotFoundException("Response", "id", resId);
         }
         return responseRepository.getResponseBySurveyAndQuestionIdAndResId(surveyId, questionId, resId);
@@ -65,15 +65,15 @@ public class ResponseServiceImpl implements ResponseService {
     @Override
     public Response createResponseForQuestion(Response res, Long questionId, Long surveyId) {
         Survey survey = surveyRepository.findById(surveyId);
-        if (survey == null){
+        if (survey == null) {
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
         Question question = questionRepository.getQuestionById(questionId);
-        if (question == null){
+        if (question == null) {
             throw new ResourceNotFoundException("Question", "id", questionId);
         }
         Option option = responseRepository.getOptionById(res.getOption().getId());
-        if (option == null){
+        if (option == null) {
             throw new ResourceNotFoundException("Option", "id", res.getOption().getId());
         }
         Response response = Response.builder()
@@ -88,19 +88,19 @@ public class ResponseServiceImpl implements ResponseService {
     @Override
     public Response updateResponseForQuestion(Response res, Long questionId, Long surveyId, Long responseId) {
         Survey survey = surveyRepository.findById(surveyId);
-        if (survey == null){
+        if (survey == null) {
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
         Question question = questionRepository.getQuestionById(questionId);
-        if (question == null){
+        if (question == null) {
             throw new ResourceNotFoundException("Question", "id", questionId);
         }
         Response response = responseRepository.getByResponseId(responseId);
-        if (response == null){
+        if (response == null) {
             throw new ResourceNotFoundException("Response", "id", responseId);
         }
         Option option = responseRepository.getOptionById(res.getOption().getId());
-        if (option == null){
+        if (option == null) {
             throw new ResourceNotFoundException("Option", "id", res.getOption().getId());
         }
         Response responseSave = Response.builder()
@@ -116,15 +116,15 @@ public class ResponseServiceImpl implements ResponseService {
     @Override
     public Boolean deleteResponseForQuestion(Long surveyId, Long questionId, Long responseId) {
         Survey survey = surveyRepository.findById(surveyId);
-        if (survey == null){
+        if (survey == null) {
             throw new ResourceNotFoundException("Survey", "id", surveyId);
         }
         Question question = questionRepository.getQuestionById(questionId);
-        if (question == null){
+        if (question == null) {
             throw new ResourceNotFoundException("Question", "id", questionId);
         }
         Response response = responseRepository.getByResponseId(responseId);
-        if (response == null){
+        if (response == null) {
             throw new ResourceNotFoundException("Response", "id", responseId);
         }
         return responseRepository.deleteResponseForQuestion(response);

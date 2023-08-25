@@ -69,6 +69,7 @@ public class  SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/v1/users/reset-password",
                         "/api/v1/users/exist-username",
                         "/api/v1/users/exist-email",
+                        "/api/v1/users/lecturer/provide-account",
                         "/")
                 .permitAll()
                 .requestMatchers("/admin/**", "/admin").hasAnyAuthority("SYS_ADMIN")

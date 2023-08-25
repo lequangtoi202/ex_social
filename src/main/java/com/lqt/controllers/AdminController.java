@@ -3,18 +3,13 @@ package com.lqt.controllers;
 import com.lqt.dto.*;
 import com.lqt.pojo.Group;
 import com.lqt.pojo.Role;
-import com.lqt.pojo.Survey;
 import com.lqt.pojo.User;
 import com.lqt.service.*;
 import com.lqt.util.Routing;
 import com.lqt.util.SurveyType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,9 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +44,7 @@ public class AdminController {
     private SurveyService surveyService;
 
     @GetMapping(Routing.ADMIN_LOGIN)
-    public String loginAdmin(Model model, @RequestParam(value = "logout", required = false) String logout,@RequestParam(value = "error", required = false) String error, HttpServletResponse response) {
+    public String loginAdmin(Model model, @RequestParam(value = "logout", required = false) String logout, @RequestParam(value = "error", required = false) String error, HttpServletResponse response) {
         if (logout != null) {
             Cookie cookie = new Cookie("JWT_TOKEN", null);
             cookie.setMaxAge(0);
@@ -97,12 +89,14 @@ public class AdminController {
             } else {
                 return "redirect:/admin/login";
             }
-        }catch (BadCredentialsException e) {
+        } catch (BadCredentialsException e) {
+            return "redirect:/admin/login?error";
+        } catch (InternalAuthenticationServiceException e) {
             return "redirect:/admin/login?error";
         }
     }
 
-    private void authenticate(String username, String password) throws Exception {
+    private void authenticate(String username, String password) throws NullPointerException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
@@ -143,7 +137,7 @@ public class AdminController {
     @GetMapping(Routing.ADMIN_GROUPS)
     public String getAllGroups(Model model,
                                @RequestParam(value = "name", required = false, defaultValue = "") String name,
-                               @RequestParam(value = "page", required = false, defaultValue = "1")int page) {
+                               @RequestParam(value = "page", required = false, defaultValue = "1") int page) {
 
         List<Group> groups = groupService.getAllGroups(name);
         int totalRecords = groups.size();
@@ -203,7 +197,7 @@ public class AdminController {
     @GetMapping(Routing.ADMIN_GROUPS_MEMBERS)
     public String getUsersOfGroup(@PathVariable("groupId") Long groupId,
                                   Model model,
-                                  @RequestParam(value = "page", required = false, defaultValue = "1")int page) {
+                                  @RequestParam(value = "page", required = false, defaultValue = "1") int page) {
         List<UserDto> userDtos = groupService.getAllUsersOfGroup(groupId);
         int totalRecords = userDtos.size();
         int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
@@ -320,7 +314,7 @@ public class AdminController {
         return "redirect:/admin/surveys";
     }
 
-//    Notification
+    //    Notification
     @GetMapping(Routing.ADMIN_SEND_NOTIFICATION_ALL)
     public String sendNotificationToAllAlumniView() {
         return "send-notification";

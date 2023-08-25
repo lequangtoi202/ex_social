@@ -74,7 +74,7 @@ public class PostRepositoryImpl implements com.lqt.repository.PostRepository {
     @Override
     public List<Post> findAllPosts() {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM Post");
+        Query q = s.createQuery("FROM Post p ORDER BY p.timestamp desc");
         List<Post> posts = q.getResultList();
         return posts;
     }

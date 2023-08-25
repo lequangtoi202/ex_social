@@ -40,6 +40,9 @@
                 <button class="btn btn-danger" onclick="confirmDeleteUser(${u.id})">
                     <i class="fas fa-trash-alt"></i>
                 </button>
+                <button class="btn btn-danger" onclick="addRoleAdmin(${u.id})">
+                    + Admin
+                </button>
             </td>
         </tr>
         </c:forEach>

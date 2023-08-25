@@ -171,7 +171,12 @@ public class UserRepositoryImpl implements UserRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createQuery("SELECT l FROM Lecturer l WHERE l.userId = :userId");
         q.setParameter("userId", userId);
-        return (Lecturer) q.getSingleResult();
+        try {
+            Lecturer lecturer = (Lecturer) q.getSingleResult();
+            return lecturer;
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
@@ -263,8 +268,12 @@ public class UserRepositoryImpl implements UserRepository {
                 .role(roleSaved)
                 .user(u)
                 .build();
-        s.save(usersRoles);
-        return true;
+        try {
+            s.save(usersRoles);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
@@ -422,6 +431,7 @@ public class UserRepositoryImpl implements UserRepository {
                     .fullName(user.getFullName())
                     .id(a.getId())
                     .userId(a.getUserId())
+                    .isLocked(a.getIsLocked())
                     .displayName(user.getFullName())
                     .phone(user.getPhone())
                     .username(user.getUsername())
@@ -473,7 +483,7 @@ public class UserRepositoryImpl implements UserRepository {
         String defaultPass = "ou@123";
         String sql = "Select u.id, u.password from lecturer l\n" +
                 "    INNER JOIN users u ON u.id = l.users_id\n" +
-                "WHERE HOUR(TIMEDIFF(CURRENT_TIMESTAMP, l.created_on)) > 24";
+                "WHERE HOUR(TIMEDIFF(CURRENT_TIMESTAMP, l.created_on)) > 24 and l.is_locked=false";
         Query q = s.createNativeQuery(sql);
         List<Object[]> users = q.getResultList();
         List<Object[]> usersUpdate = new ArrayList<>();
@@ -503,9 +513,6 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (Exception e) {
             return false;
         }
-
-
-
     }
 
     @Override
@@ -515,11 +522,7 @@ public class UserRepositoryImpl implements UserRepository {
         q.setParameter("userId", user.getId());
         int rowsAffected = q.executeUpdate();
 
-        if (rowsAffected > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return rowsAffected > 0;
     }
 
     @Override
@@ -536,11 +539,7 @@ public class UserRepositoryImpl implements UserRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createQuery("UPDATE Alumni a SET a.isConfirmed = true WHERE a.id=:alumniId");
         q.setParameter("alumniId", alumni.getId());
-        if (q.executeUpdate() > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return q.executeUpdate() > 0;
     }
 
     @Override
@@ -550,5 +549,14 @@ public class UserRepositoryImpl implements UserRepository {
         q.setParameter("alumniId", alumni.getId());
         Alumni alumniSaved = (Alumni) q.getSingleResult();
         return alumniSaved.getIsConfirmed();
+    }
+
+    @Override
+    public Boolean checkLecturerIsLocked(Lecturer lecturer) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createQuery("SELECT l FROM Lecturer l WHERE l.id=:lecturerId");
+        q.setParameter("lecturerId", lecturer.getId());
+        Lecturer lecturerSaved = (Lecturer) q.getSingleResult();
+        return lecturerSaved.getIsLocked();
     }
 }

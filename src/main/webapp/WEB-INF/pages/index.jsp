@@ -207,6 +207,7 @@
         </c:forEach>
 
         chart.render();
+
         var time = (month !== null && month !== "")
             ? ((year !== null && year !== "") ? month + ' - ' + year :  month +' - '+ new Date().getFullYear())
             : ((quarter !== null && quarter !== "")

@@ -20,7 +20,6 @@ public class TokenInterceptor implements HandlerInterceptor {
             }
         }
 
-        // Đặt token vào header
         if (token != null) {
             response.setHeader("Authorization", "Bearer " + token);
         }

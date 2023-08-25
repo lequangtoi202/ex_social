@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lqt.dto.*;
 import com.lqt.pojo.Alumni;
-import com.lqt.pojo.Post;
+import com.lqt.pojo.Lecturer;
 import com.lqt.pojo.User;
 import com.lqt.request.AlumniRequest;
 import com.lqt.request.LecturerRequest;
@@ -23,9 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -41,15 +39,20 @@ public class AuthController {
 
     @PostMapping(Routing.LOGIN)
     public ResponseEntity<?> login(@RequestBody @Valid LoginDto loginDto, HttpServletResponse response) throws Exception {
-        authenticate(loginDto.getUsername(), loginDto.getPassword());
+        try {
+            authenticate(loginDto.getUsername(), loginDto.getPassword());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Username or password is invalid!");
+        }
 
         final UserDetails userDetails = userDetailServiceImpl
                 .loadUserByUsername(loginDto.getUsername());
         User user = userDetailServiceImpl.findByUsername(userDetails.getUsername());
+        Lecturer lecturer = userDetailServiceImpl.findLecturerByUserId(user.getId());
         Alumni alumni = userDetailServiceImpl.findAlumniByUserId(user.getId());
-        if (alumni != null){
+        if (alumni != null) {
             Boolean isConfirmed = userDetailServiceImpl.checkAlumniIsConfirmed(alumni);
-            if (isConfirmed){
+            if (isConfirmed) {
                 JwtResponse jwtResponse = authService.login(userDetails);
                 if (jwtResponse != null) {
                     Cookie cookie = new Cookie("JWT_TOKEN", jwtResponse.getAccessToken());
@@ -61,11 +64,27 @@ public class AuthController {
                 } else {
                     return ResponseEntity.badRequest().body("Username or password is invalid!");
                 }
-            }
-            else{
+            } else {
                 return new ResponseEntity<>("Your account is not confirmed by admin. Please waiting!..", HttpStatus.BAD_REQUEST);
             }
-        }else{
+        } else if (lecturer != null) {
+            Boolean isLocked = userDetailServiceImpl.checkLecturerIsLocked(lecturer);
+            if (!isLocked) {
+                JwtResponse jwtResponse = authService.login(userDetails);
+                if (jwtResponse != null) {
+                    Cookie cookie = new Cookie("JWT_TOKEN", jwtResponse.getAccessToken());
+                    cookie.setPath("/");
+                    cookie.setMaxAge(3600);
+
+                    response.addCookie(cookie);
+                    return ResponseEntity.ok().body(jwtResponse);
+                } else {
+                    return ResponseEntity.badRequest().body("Username or password is invalid!");
+                }
+            } else {
+                return new ResponseEntity<>("Your account is locked. Please contact admin!", HttpStatus.BAD_REQUEST);
+            }
+        } else {
             JwtResponse jwtResponse = authService.login(userDetails);
             if (jwtResponse != null) {
                 Cookie cookie = new Cookie("JWT_TOKEN", jwtResponse.getAccessToken());
@@ -85,8 +104,8 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    @PostMapping(value= Routing.ADMIN_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
-    public ResponseEntity<UserDto> adminRegister(@RequestParam("userDto") String  userRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
+    @PostMapping(value = Routing.ADMIN_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDto> adminRegister(@RequestParam("userDto") String userRequest, @RequestPart("avatar") MultipartFile avatar) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             UserDto userDto = objectMapper.readValue(userRequest, UserDto.class);
@@ -97,7 +116,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping(value= Routing.ALUMNI_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    @PostMapping(value = Routing.ALUMNI_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AlumniResponse> alumniRegister(@RequestParam("alumni") String alumniRequest, @RequestPart MultipartFile avatar) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -110,8 +129,8 @@ public class AuthController {
 
     }
 
-    @PostMapping(value=Routing.LECTURER_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
-    public ResponseEntity<LecturerResponse> lecturerRegister(@RequestParam("lecturer") String lecturerRequest, @RequestPart("avatar")MultipartFile avatar) throws Exception {
+    @PostMapping(value = Routing.LECTURER_REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<LecturerResponse> lecturerRegister(@RequestParam("lecturer") String lecturerRequest, @RequestPart("avatar") MultipartFile avatar) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             LecturerRequest lecturer = objectMapper.readValue(lecturerRequest, LecturerRequest.class);
@@ -123,19 +142,19 @@ public class AuthController {
     }
 
     @PostMapping(Routing.IS_EXIST_EMAIL)
-    public ResponseEntity<?> isExistEmail(@RequestParam String email){
-        if (userDetailServiceImpl.existsByEmail(email)){
+    public ResponseEntity<?> isExistEmail(@RequestParam String email) {
+        if (userDetailServiceImpl.existsByEmail(email)) {
             return ResponseEntity.badRequest().body("Email is already exist");
-        }else {
+        } else {
             return ResponseEntity.ok().build();
         }
     }
 
     @PostMapping(Routing.IS_EXIST_USERNAME)
-    public ResponseEntity<?> isExistUsername(@RequestParam String username){
-        if (userDetailServiceImpl.existsByUsername(username)){
+    public ResponseEntity<?> isExistUsername(@RequestParam String username) {
+        if (userDetailServiceImpl.existsByUsername(username)) {
             return ResponseEntity.badRequest().body("Username is already exist");
-        }else {
+        } else {
             return ResponseEntity.ok().build();
         }
     }

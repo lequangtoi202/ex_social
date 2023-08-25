@@ -37,6 +37,7 @@ public class GroupController {
     private MailService mailService;
     @Autowired
     private JavaMailSender mailSender;
+
     //ok
     @GetMapping(Routing.GROUP)
     public ResponseEntity<List<Group>> getAllGroups(@RequestParam(value = "name", required = false, defaultValue = "") String name) {

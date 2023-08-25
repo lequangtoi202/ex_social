@@ -12,7 +12,6 @@ import com.lqt.request.PasswordRequest;
 import com.lqt.service.MailService;
 import com.lqt.service.UserService;
 import com.lqt.util.Routing;
-import com.lqt.util.Utility;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.ws.rs.PathParam;
 import java.util.List;
 
 @RestController
@@ -41,6 +39,7 @@ public class UserController {
     private MailService mailService;
     @Autowired
     private ModelMapper mapper;
+
     //ok
     @PutMapping(Routing.ALUMNI_PROFILE)
     public ResponseEntity<AlumniResponse> updateProfileAlumni(@RequestBody @Valid AlumniRequest alumniRequest) {
@@ -121,11 +120,16 @@ public class UserController {
             List<Role> roles = userService.getAllRoleOfUser(currentUser.getId());
             Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
             if (hasAdminRole) {
-                Boolean rs = userService.assignRoleToUser(role, userId);
-                if (rs) {
-                    return ResponseEntity.ok("Assign role successfully!");
+                try {
+                    Boolean rs = userService.assignRoleToUser(role, userId);
+                    if (rs) {
+                        return ResponseEntity.ok("Assign role successfully!");
+                    } else {
+                        return ResponseEntity.ok("Assign role failed!");
+                    }
+                } catch (RuntimeException e) {
+                    return ResponseEntity.badRequest().body(e.getMessage());
                 }
-                return ResponseEntity.badRequest().body("Assign role failed!");
             } else {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
@@ -177,6 +181,16 @@ public class UserController {
             return ResponseEntity.ok().body("Token is valid!");
         }
         return ResponseEntity.badRequest().body("Token is invalid!");
+    }
+
+    @PostMapping(Routing.SEND_MAIL_ACCOUNT_TO_LECTURER)
+    public ResponseEntity<String> sendMailAccountToLecturer(@RequestBody LecturerRequest lecturerRequest) {
+        try {
+            userService.sendMailAccountToLecturer(lecturerRequest.getEmail(), lecturerRequest.getUsername());
+            return ResponseEntity.ok().body("Thông tin đã được gửi qua email của bạn.");
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body("Token is invalid!");
+        }
     }
 
     @PostMapping(Routing.RESET_PASSWORD)

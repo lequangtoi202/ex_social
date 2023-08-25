@@ -31,7 +31,7 @@ public class MailServiceImpl implements MailService {
         helper.setTo(recipients);
         helper.setFrom("2051052140toi@ou.edu.vn");
         String subject = "Here is the link to reset your password";
-        String content = "<p>Hello,</p>"+
+        String content = "<p>Hello,</p>" +
                 "<p>You have request to reset your password.</p>"
                 + "<p>Click link below to change your password:</p>"
                 + "<p><b><a href=\"" + resetPasswordLink + "\">Change my password</a></b></p>"
@@ -46,6 +46,19 @@ public class MailServiceImpl implements MailService {
     @Override
     @Async
     public void sendMailToEachPersonGroup(MailRequest mailRequest) {
+        logger.debug("RUN JOB: sendMailToEachPersonGroup");
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(mailRequest.getRecipients());
+        message.setFrom(mailRequest.getFrom());
+        message.setSubject(mailRequest.getSubject());
+        message.setText(mailRequest.getBody());
+
+        mailSender.send(message);
+        logger.debug("END JOB: sendMailToEachPersonGroup");
+    }
+
+    @Override
+    public void sendMailAccountToLecturer(MailRequest mailRequest) {
         logger.debug("RUN JOB: sendMailToEachPersonGroup");
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailRequest.getRecipients());

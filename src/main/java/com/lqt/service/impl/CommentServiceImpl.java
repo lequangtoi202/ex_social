@@ -1,8 +1,6 @@
 package com.lqt.service.impl;
 
 import com.lqt.dto.CommentDto;
-import com.lqt.dto.PostDto;
-import com.lqt.dto.UserDto;
 import com.lqt.exception.ResourceNotFoundException;
 import com.lqt.pojo.Comment;
 import com.lqt.pojo.Post;
@@ -11,7 +9,6 @@ import com.lqt.repository.CommentRepository;
 import com.lqt.repository.PostRepository;
 import com.lqt.service.CommentService;
 import com.lqt.service.UserService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +16,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -33,22 +29,22 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto create(CommentDto commentDto, Long postId, Long userId, Long belongsCommentId) {
         Post post = postRepository.findPostById(postId);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", postId);
         }
         Comment commentParent = null;
-        if (belongsCommentId != null){
-             commentParent = commentRepository.findCommentById(belongsCommentId);
+        if (belongsCommentId != null) {
+            commentParent = commentRepository.findCommentById(belongsCommentId);
         }
         Comment comment;
         if (commentParent == null) {
-             comment = Comment.builder()
+            comment = Comment.builder()
                     .content(commentDto.getContent())
                     .timestamp(Timestamp.valueOf(LocalDateTime.now()))
                     .postId(post.getId())
                     .userId(userId)
                     .build();
-        }else {
+        } else {
             comment = Comment.builder()
                     .content(commentDto.getContent())
                     .timestamp(Timestamp.valueOf(LocalDateTime.now()))
@@ -73,15 +69,15 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto update(CommentDto commentDto, Long postId, Long userId, Long commentId) {
         Post post = postRepository.findPostById(postId);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", postId);
         }
         Comment comment = commentRepository.findCommentById(commentId);
-        if (comment == null){
+        if (comment == null) {
             throw new ResourceNotFoundException("Comment", "id", commentId);
         }
         comment.setContent(commentDto.getContent());
-        if (comment.getUserId() == userId){
+        if (comment.getUserId() == userId) {
             Comment cmtResult = commentRepository.update(comment);
             CommentDto commentDto1 = CommentDto.builder()
                     .belongsComment(cmtResult.getBelongsComment().getId())
@@ -92,7 +88,7 @@ public class CommentServiceImpl implements CommentService {
                     .id(cmtResult.getId())
                     .build();
             return commentDto1;
-        }else{
+        } else {
             return null;
         }
     }
@@ -100,18 +96,18 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Boolean delete(Long commentId, Long postId, Long userId) {
         Comment comment = commentRepository.findCommentById(commentId);
-        if (comment == null){
+        if (comment == null) {
             throw new ResourceNotFoundException("Comment", "id", commentId);
         }
         Post post = postRepository.findPostById(postId);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", postId);
         }
         List<Role> roles = userService.getAllRoleOfUser(userId);
-        Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
-        if (hasAdminRole || comment.getUserId() == userId || post.getUserId() == comment.getUserId()){
+        Boolean hasAdminRole = roles.stream().anyMatch(r -> r.getName().equals("SYS_ADMIN"));
+        if (hasAdminRole || comment.getUserId() == userId || post.getUserId() == userId) {
             return commentRepository.delete(comment);
-        }else{
+        } else {
             return false;
         }
     }
@@ -119,7 +115,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto findByCommentId(Long commentId) {
         Comment comment = commentRepository.findCommentById(commentId);
-        if (comment == null){
+        if (comment == null) {
             throw new ResourceNotFoundException("Comment", "id", commentId);
         }
         CommentDto commentDto = CommentDto.builder()
@@ -136,7 +132,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDto> getAllCommentsByPostId(Long postId) {
         Post post = postRepository.findPostById(postId);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", postId);
         }
         List<Comment> comments = commentRepository.findAllCommentsByPostId(postId);
@@ -158,11 +154,11 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDto> getAllCommentsByBelongsCommentId(Long postId, Long commentParentId) {
         Post post = postRepository.findPostById(postId);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", postId);
         }
         Comment comment = commentRepository.findCommentById(commentParentId);
-        if (comment == null){
+        if (comment == null) {
             throw new ResourceNotFoundException("Comment", "id", commentParentId);
         }
         List<Comment> comments = commentRepository.findAllCommentsByCommentParentId(postId, commentParentId);

@@ -55,14 +55,14 @@ public class SurveyRepositoryImpl implements SurveyRepository {
     @Override
     public List<Survey> getAllSurveys() {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM Survey");
+        Query q = s.createQuery("FROM Survey s ORDER BY s.createdOn desc ");
         return q.getResultList();
     }
 
     @Override
     public List<Survey> getAllSurveysByUserId(Long userId) {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM Survey s WHERE s.userId=:userId");
+        Query q = s.createQuery("FROM Survey s WHERE s.userId=:userId ORDER BY s.createdOn desc");
         q.setParameter("userId", userId);
         return q.getResultList();
     }

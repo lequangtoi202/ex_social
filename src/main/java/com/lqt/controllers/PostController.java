@@ -53,6 +53,7 @@ public class PostController {
         }
 
     }
+
     //ok
     @PostMapping(Routing.POST)
     public ResponseEntity<?> createPost(@RequestBody @Valid PostDto postDto) {
@@ -107,7 +108,7 @@ public class PostController {
 
     //ok
     @GetMapping(Routing.POST_BY_USER_ID)
-    public ResponseEntity<List<PostDto>> getAllPostsByUserId(@PathVariable("userId") Long userId, @RequestParam(value = "order",defaultValue = "desc") String orderDir) {
+    public ResponseEntity<List<PostDto>> getAllPostsByUserId(@PathVariable("userId") Long userId, @RequestParam(value = "order", defaultValue = "desc") String orderDir) {
         return ResponseEntity.ok(postService.findPostsByUserId(userId, orderDir));
     }
 

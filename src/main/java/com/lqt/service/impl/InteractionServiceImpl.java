@@ -30,11 +30,11 @@ public class InteractionServiceImpl implements InteractionService {
     @Override
     public Interaction interactWithPost(Long postId, Long userId, Action action) {
         User u = userRepository.findById(userId);
-        if (u == null){
+        if (u == null) {
             throw new ResourceNotFoundException("User", "id", userId);
         }
         Post post = postRepository.findPostById(postId);
-        if (post == null){
+        if (post == null) {
             throw new ResourceNotFoundException("Post", "id", postId);
         }
         Interaction interaction = Interaction.builder()

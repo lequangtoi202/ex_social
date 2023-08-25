@@ -8,4 +8,6 @@ public interface MailService {
     void sendMailForgotPassword(String recipients, String resetPasswordLink) throws MessagingException;
 
     void sendMailToEachPersonGroup(MailRequest mailRequest);
+
+    void sendMailAccountToLecturer(MailRequest mailRequest);
 }

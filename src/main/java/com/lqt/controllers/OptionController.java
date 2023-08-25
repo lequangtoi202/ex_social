@@ -21,4 +21,4 @@ public class OptionController {
     public ResponseEntity<List<Option>> getAllOptionsOfQuestion(@PathVariable("id") Long questionId) {
         return ResponseEntity.ok(optionService.getAllOptionsOfQuestion(questionId));
     }
- }
+}

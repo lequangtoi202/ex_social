@@ -66,6 +66,30 @@ function confirmDeleteUser(userId) {
     }
 }
 
+function addRoleAdmin(userId) {
+    const role = {
+        name: "SYS_ADMIN"
+    }
+    axios.post(`http://localhost:8081/api/v1/users/${userId}/add-role`, JSON.stringify(role), {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+        .then(response => {
+            axios.get(`http://localhost:8081/api/v1/users`)
+                .then(response => {
+                    const users = response.data;
+                    updateTable(users);
+                })
+                .catch(error => {
+                    console.error('Error fetching filtered users:', error);
+                });
+        })
+        .catch(e => {
+            alert(e.response.data)
+        })
+}
+
 function deleteUser(userId) {
     axios.delete(`http://localhost:8081/api/v1/users/${userId}`)
         .then(response => {
@@ -137,7 +161,7 @@ function deletePost(postId) {
             window.location.href = "http://localhost:8081/admin/posts";
         })
         .catch(e => {
-            console.log(e.response.data)
+            alert(e.response.data)
         })
 }
 
@@ -175,7 +199,6 @@ function confirmAlumni(userId) {
             axios.get(`http://localhost:8081/api/v1/alumni`)
                 .then(response => {
                     const users = response.data;
-                    console.log(users)
                     updateTable(users);
                 })
                 .catch(error => {
@@ -183,7 +206,7 @@ function confirmAlumni(userId) {
                 });
         })
         .catch(error => {
-            console.log(error)
+            alert(error.response.data)
         });
 
 
@@ -191,13 +214,11 @@ function confirmAlumni(userId) {
 
 function filterUsers() {
     const selectedRole = document.getElementById("userRoleFilter").value;
-    console.log(selectedRole)
     switch (selectedRole) {
         case 'alumni':
             axios.get(`http://localhost:8081/api/v1/alumni`)
                 .then(response => {
                     const users = response.data;
-                    console.log(users)
                     updateTable(users);
                 })
                 .catch(error => {
@@ -231,14 +252,38 @@ function hasIsConfirm(usersArray) {
     return usersArray.some(user => user.hasOwnProperty("isConfirmed"));
 }
 
+function hasIsLocked(usersArray) {
+    return usersArray.some(user => user.hasOwnProperty("isLocked"));
+}
+
 function hasUserId(usersArray) {
     return usersArray.some(user => user.hasOwnProperty("userId"));
+}
+
+function resetTimeChangePasswordForLecturer(userId) {
+    axios.get(`http://localhost:8081/api/v1/lecturer/${userId}/reset`)
+        .then(response => {
+            console.log(response.data);
+            axios.get(`http://localhost:8081/api/v1/lecturers`)
+                .then(response => {
+                    const users = response.data;
+                    console.log(users)
+                    updateTable(users);
+                })
+                .catch(error => {
+                    console.error('Error fetching filtered users:', error);
+                });
+        })
+        .catch(error => {
+            console.log(error)
+        });
 }
 
 function updateTable(users) {
     const tbody = document.querySelector(".table tbody");
     tbody.innerHTML = "";
     const hasIsConfirmProperty = hasIsConfirm(users);
+    const hasIsLockedProperty = hasIsLocked(users);
     if (hasIsConfirmProperty && hasUserId(users)) {
         users.forEach(user => {
             const newRow = `<tr>
@@ -263,11 +308,14 @@ function updateTable(users) {
                     >
                         Confirm
                     </button>
+                    <button class="btn btn-danger" onclick="addRoleAdmin(${user.id})">
+                        + Admin
+                    </button>
                 </td>
             </tr>`;
             tbody.innerHTML += newRow;
         });
-    } else if (hasUserId(users)) {
+    } else if (hasIsLockedProperty && hasUserId(users)) {
         users.forEach(user => {
             const newRow = `<tr>
                 <td>${user.userId}</td>
@@ -284,6 +332,15 @@ function updateTable(users) {
                     </button>
                     <button class="btn btn-danger" onclick="confirmDeleteUser(${user.userId})">
                         <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button class="btn ${user.isLocked ? 'btn-danger' : 'btn-primary'}" 
+                            ${!user.isLocked ? 'disabled' : ''}
+                            onclick="resetTimeChangePasswordForLecturer(${user.userId})"
+                    >
+                        ${user.isLocked ? 'Unlock' : 'Active'}
+                    </button>
+                    <button class="btn btn-danger" onclick="addRoleAdmin(${user.id})">
+                        + Admin
                     </button>
                 </td>
             </tr>`;
@@ -307,6 +364,9 @@ function updateTable(users) {
                     <button class="btn btn-danger" onclick="confirmDeleteUser(${user.id})">
                         <i class="fas fa-trash-alt"></i>
                     </button>
+                    <button class="btn btn-danger" onclick="addRoleAdmin(${user.id})">
+                        + Admin
+                    </button>
                 </td>
             </tr>`;
             tbody.innerHTML += newRow;
@@ -317,8 +377,6 @@ function updateTable(users) {
 function updateGroupTable(groups, numOfUsers) {
     const tbody = document.querySelector(".table tbody");
     tbody.innerHTML = "";
-    console.log(groups)
-    console.log(numOfUsers)
     groups.forEach(g => {
         const newRow = `<tr>
                     <td>${g.id}</td>
@@ -504,7 +562,11 @@ document.getElementById("sendMailForm").addEventListener("submit", function (eve
     if (group != null)
         groupId = group.value;
     if (typeof groupId !== "undefined" && groupId !== null) {
-        axios.post(`http://localhost:8081/api/v1/groups/${groupId}/mails`, JSON.stringify(params))
+        axios.post(`http://localhost:8081/api/v1/groups/${groupId}/mails`, JSON.stringify(params), {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
             .then(response => {
                 window.location.href = "http://localhost:8081/admin";
             })
